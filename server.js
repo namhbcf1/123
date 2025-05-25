@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const performanceCalculator = require('./performance-calculator.js');
+// const performanceCalculator = require('./performance-calculator.js');
 
 const app = express();
 const port = process.env.PORT || 3000;

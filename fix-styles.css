@@ -1,0 +1,246 @@
+/* Fix styles for Truong Phat Computer build website */
+
+/* Base layout fixes */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header styling - blue gradient as in first image */
+header {
+    background: linear-gradient(135deg, #0053b4, #0275d8) !important;
+    padding: 15px 0 !important;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    display: inline-flex !important;
+    align-items: center !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    padding: 10px 20px !important;
+    border-radius: 10px !important;
+    color: white !important;
+}
+
+/* Navigation icons */
+.nav-items {
+    display: flex !important;
+    justify-content: center !important;
+    margin: 20px 0 !important;
+    gap: 20px !important;
+}
+
+.nav-item {
+    background: white !important;
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+    cursor: pointer !important;
+}
+
+.nav-item.active {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+/* Card styling for sections */
+.selection-section, .component-section, .config-section {
+    background: white !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+}
+
+/* Budget slider */
+input[type="range"] {
+    width: 100% !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    height: 8px !important;
+    background: #ff4d4d !important;
+    outline: none !important;
+    border-radius: 4px !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 20px !important;
+    height: 20px !important;
+    background: red !important;
+    cursor: pointer !important;
+    border-radius: 50% !important;
+}
+
+/* CPU selection styling */
+.cpu-options {
+    display: flex !important;
+    gap: 20px !important;
+    margin-top: 15px !important;
+}
+
+.cpu-option, #intel-option, #amd-option {
+    border: 2px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.cpu-option.selected, #intel-option.selected, #amd-option.selected {
+    border-color: #007bff !important;
+    background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Game selection grid */
+.game-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 15px !important;
+    margin-top: 15px !important;
+}
+
+.game-card {
+    position: relative !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+    cursor: pointer !important;
+    height: 150px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.game-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.game-card .game-title {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background-color: rgba(0,0,0,0.7) !important;
+    color: white !important;
+    padding: 5px !important;
+    text-align: center !important;
+    font-size: 0.9rem !important;
+}
+
+.game-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2) !important;
+}
+
+.game-card.selected {
+    border: 2px solid #007bff !important;
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 15px rgba(0, 123, 255, 0.3) !important;
+}
+
+/* Contact buttons */
+.contact-buttons {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    margin-top: 15px !important;
+}
+
+.contact-button, a[href*="zalo"], a[href*="tel:"], a[href*="facebook"] {
+    padding: 10px 20px !important;
+    border-radius: 30px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+a[href*="zalo"] {
+    background-color: #0068ff !important;
+    color: white !important;
+}
+
+a[href*="tel:"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+a[href*="facebook"] {
+    background-color: #4267B2 !important;
+    color: white !important;
+}
+
+.contact-button i, a[href*="zalo"] i, a[href*="tel:"] i, a[href*="facebook"] i {
+    margin-right: 8px !important;
+}
+
+/* Configure button */
+.btn-configure {
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 30px !important;
+    padding: 10px 25px !important;
+    margin: 20px auto !important;
+    display: block !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-configure:hover {
+    background-color: #0069d9 !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+    position: absolute !important;
+    top: 20px !important;
+    right: 20px !important;
+    color: white !important;
+    font-size: 1.2rem !important;
+    cursor: pointer !important;
+    z-index: 100 !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+    margin-bottom: 15px !important;
+    font-weight: 600 !important;
+}
+
+h2 {
+    font-size: 1.3rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+h2 i {
+    margin-right: 10px !important;
+    color: #007bff !important;
+}
+
+/* Container layout */
+.container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+} 
