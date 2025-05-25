@@ -653,6 +653,7 @@ function fixConfigTableDisplay() {
     // Add listeners to ensure config table is shown when needed
     const calculateButton = document.getElementById('calculate-button');
     const configTable = document.getElementById('config-table');
+    const summaryModal = document.getElementById('summary-modal');
     const gameGenre = document.getElementById('game-genre');
     const cpuType = document.getElementById('cpu-type');
     const budgetRange = document.getElementById('budget-range');
@@ -674,25 +675,32 @@ function fixConfigTableDisplay() {
     }
     
     // Add default handler for calculate button
-    if (calculateButton && configTable) {
+    if (calculateButton) {
         calculateButton.addEventListener('click', function() {
             // Ensure the table is visible
-            configTable.style.display = 'block';
+            if (configTable) {
+                configTable.style.display = 'block';
+                
+                // Scroll to the table
+                setTimeout(() => {
+                    configTable.scrollIntoView({behavior: 'smooth'});
+                }, 100);
+                
+                // Add highlight animation
+                configTable.animate([
+                    { boxShadow: '0 0 0 4px var(--primary-color)' },
+                    { boxShadow: '0 0 20px 0px var(--primary-color)' },
+                    { boxShadow: '0 0 0 4px var(--primary-color)' }
+                ], {
+                    duration: 1500,
+                    easing: 'ease-in-out'
+                });
+            }
             
-            // Scroll to the table
-            setTimeout(() => {
-                configTable.scrollIntoView({behavior: 'smooth'});
-            }, 100);
-            
-            // Add highlight animation
-            configTable.animate([
-                { boxShadow: '0 0 0 4px var(--primary-color)' },
-                { boxShadow: '0 0 20px 0px var(--primary-color)' },
-                { boxShadow: '0 0 0 4px var(--primary-color)' }
-            ], {
-                duration: 1500,
-                easing: 'ease-in-out'
-            });
+            // Also show the modal popup
+            if (summaryModal) {
+                summaryModal.style.display = 'block';
+            }
         });
     }
     
@@ -729,6 +737,21 @@ function fixConfigTableDisplay() {
                 
                 console.log(`Game selected: ${gameId}`);
             });
+        });
+    }
+    
+    // Make sure modal can be closed
+    const closeModalBtn = document.querySelector('.close-modal');
+    if (closeModalBtn && summaryModal) {
+        closeModalBtn.addEventListener('click', function() {
+            summaryModal.style.display = 'none';
+        });
+        
+        // Also close when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === summaryModal) {
+                summaryModal.style.display = 'none';
+            }
         });
     }
     
@@ -790,7 +813,7 @@ function fixConfigTableDisplay() {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'childList' || mutation.type === 'attributes') {
                 // Table content has changed, ensure it's visible
-                if (configTable.style.display === 'none') {
+                if (configTable && configTable.style.display === 'none') {
                     configTable.style.display = 'block';
                 }
             }
@@ -818,6 +841,15 @@ function fixConfigTableDisplay() {
             setTimeout(() => {
                 configTable.scrollIntoView({behavior: 'smooth'});
             }, 300);
+        });
+    }
+    
+    // Add direct handler for show-config-details button
+    const showConfigDetailsButton = document.getElementById('show-config-details');
+    if (showConfigDetailsButton && summaryModal) {
+        showConfigDetailsButton.addEventListener('click', function() {
+            // Show modal popup
+            summaryModal.style.display = 'block';
         });
     }
 }

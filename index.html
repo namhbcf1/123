@@ -253,6 +253,70 @@
             margin-right: 10px;
             color: #007bff;
         }
+        
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 50px;
+        }
+        
+        .modal-content {
+            background-color: #f8f9fa;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 85%;
+            max-width: 1000px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: modalopen 0.5s;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 0 15px;
+        }
+        
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
     </style>
     
     <script>
@@ -1282,15 +1346,13 @@
                     populateDropdowns();
                 });
                 
-                // Make sure config table is hidden initially
-                const configTable = document.getElementById('config-table');
-                if (configTable) {
-                    configTable.style.display = 'none';
-                }
+                // REMOVED: Don't hide the config table initially
                 
                 // Register event listener for the calculate button
                 const calculateButton = document.getElementById('calculate-button');
-                if (calculateButton && configTable) {
+                const summaryModal = document.getElementById('summary-modal');
+                
+                if (calculateButton) {
                     calculateButton.addEventListener('click', function() {
                         // Check if any components are selected
                         const componentIds = ['cpu', 'mainboard', 'ram', 'vga', 'ssd', 'cpuCooler', 'psu', 'case', 'hdd', 'monitor'];
@@ -1311,8 +1373,16 @@
                             }
                             
                             // Show the config table
-                            configTable.style.display = 'block';
-                            console.log('Configuration table shown with updated component data');
+                            const configTable = document.getElementById('config-table');
+                            if (configTable) {
+                                configTable.style.display = 'block';
+                                console.log('Configuration table shown with updated component data');
+                            }
+                            
+                            // Also show the modal popup
+                            if (summaryModal) {
+                                summaryModal.style.display = 'block';
+                            }
                         } else {
                             // No components selected
                             alert('Vui lòng chọn ít nhất một linh kiện trước khi xem chi tiết.');
@@ -1320,6 +1390,29 @@
                         }
                     });
                 }
+                
+                // Add event handler for the show-config-details button
+                const showConfigDetailsButton = document.getElementById('show-config-details');
+                if (showConfigDetailsButton && summaryModal) {
+                    showConfigDetailsButton.addEventListener('click', function() {
+                        summaryModal.style.display = 'block';
+                    });
+                }
+                
+                // Add event handler for closing the modal
+                const closeModal = document.querySelector('.close-modal');
+                if (closeModal && summaryModal) {
+                    closeModal.addEventListener('click', function() {
+                        summaryModal.style.display = 'none';
+                    });
+                }
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', function(event) {
+                    if (event.target == summaryModal) {
+                        summaryModal.style.display = 'none';
+                    }
+                });
                 
                 // Nếu sau 5 giây vẫn chưa nhận được sự kiện, thử kiểm tra dữ liệu trực tiếp
                 setTimeout(() => {
@@ -1423,6 +1516,48 @@
                 });
                 header.appendChild(toggle);
             }
+        }
+        
+        // Make sure config table is visible
+        const configTable = document.getElementById('config-table');
+        if (configTable) {
+            configTable.style.display = 'block';
+            console.log('Config table display set to block on page load');
+        }
+        
+        // Initialize buttons for showing modal
+        const calculateButton = document.getElementById('calculate-button');
+        const showConfigDetailsButton = document.getElementById('show-config-details');
+        const summaryModal = document.getElementById('summary-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        
+        if (calculateButton && summaryModal) {
+            calculateButton.addEventListener('click', function() {
+                summaryModal.style.display = 'block';
+                console.log('Showing modal via calculate button');
+            });
+        }
+        
+        if (showConfigDetailsButton && summaryModal) {
+            showConfigDetailsButton.addEventListener('click', function() {
+                summaryModal.style.display = 'block';
+                console.log('Showing modal via show details button');
+            });
+        }
+        
+        if (closeModalBtn && summaryModal) {
+            closeModalBtn.addEventListener('click', function() {
+                summaryModal.style.display = 'none';
+                console.log('Closing modal via close button');
+            });
+            
+            // Also close when clicking outside
+            window.onclick = function(event) {
+                if (event.target == summaryModal) {
+                    summaryModal.style.display = 'none';
+                    console.log('Closing modal via outside click');
+                }
+            };
         }
     });
     </script>
