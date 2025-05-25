@@ -1531,17 +1531,15 @@
         const summaryModal = document.getElementById('summary-modal');
         const closeModalBtn = document.querySelector('.close-modal');
         
-        if (calculateButton && summaryModal) {
+        if (calculateButton && typeof window.calculateTotalPriceAndSummary === 'function') {
             calculateButton.addEventListener('click', function() {
-                summaryModal.style.display = 'block';
-                console.log('Showing modal via calculate button');
+                window.calculateTotalPriceAndSummary();
             });
         }
         
-        if (showConfigDetailsButton && summaryModal) {
+        if (showConfigDetailsButton && typeof window.calculateTotalPriceAndSummary === 'function') {
             showConfigDetailsButton.addEventListener('click', function() {
-                summaryModal.style.display = 'block';
-                console.log('Showing modal via show details button');
+                window.calculateTotalPriceAndSummary();
             });
         }
         
