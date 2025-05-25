@@ -23,6 +23,25 @@
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
+    
+    /* Theme colors - will be updated by JS */
+    --intel-primary: #0071c5;
+    --intel-secondary: #00c7fd;
+    --intel-gradient: linear-gradient(135deg, #0071c5, #00c7fd);
+    --amd-primary: #ED1C24;
+    --amd-secondary: #ff4c4c;
+    --amd-gradient: linear-gradient(135deg, #ED1C24, #ff4c4c);
+}
+
+/* CPU Theme specific styling */
+body.intel-theme {
+    --primary-color: var(--intel-primary);
+    --primary-gradient: var(--intel-gradient);
+}
+
+body.amd-theme {
+    --primary-color: var(--amd-primary);
+    --primary-gradient: var(--amd-gradient);
 }
 
 /* Modern animations */
@@ -53,6 +72,87 @@
     100% { transform: translateY(0px); }
 }
 
+/* Config table styling */
+.config-table {
+    margin: 30px auto !important;
+    max-width: 95% !important;
+    overflow-x: auto !important;
+    background-color: var(--card-bg) !important;
+    box-shadow: var(--shadow-lg) !important;
+    border-radius: var(--border-radius-lg) !important;
+    padding: 20px !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    animation: fadeIn 0.5s ease-out !important;
+    transition: all var(--transition-normal) !important;
+}
+
+.config-table:hover {
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+}
+
+.config-table table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 20px !important;
+}
+
+.config-table table thead tr {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.config-table table th, 
+.config-table table td {
+    padding: 12px !important;
+    text-align: center !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.config-table table tbody tr:nth-child(odd) {
+    background-color: #f8fafc !important;
+}
+
+.config-table table tbody tr:hover {
+    background-color: #edf2f7 !important;
+}
+
+.config-table table td[id$="-price"],
+.config-table table td[id$="-total"],
+.config-table table td#total-price-cell,
+.config-table table td#remaining-price-cell {
+    font-weight: 600 !important;
+    text-align: right !important;
+}
+
+.config-table table td#total-price-cell,
+.config-table table td#remaining-price-cell {
+    color: var(--primary-color) !important;
+    font-size: 1.1em !important;
+}
+
+.config-table .system-message {
+    margin: 15px !important;
+    padding: 15px !important;
+    border-radius: var(--border-radius-md) !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+}
+
+/* Images in the config table */
+.config-table td[id$="-image"] img {
+    max-width: 80px !important;
+    max-height: 80px !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    display: block !important;
+    border-radius: var(--border-radius-sm) !important;
+    transition: transform var(--transition-normal) !important;
+}
+
+.config-table td[id$="-image"] img:hover {
+    transform: scale(1.2) !important;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--background-light);
@@ -70,6 +170,7 @@ header {
     position: relative;
     overflow: hidden;
     animation: fadeIn 0.8s ease-out;
+    transition: background var(--transition-normal) !important;
 }
 
 header::before {

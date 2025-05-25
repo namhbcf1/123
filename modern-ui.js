@@ -44,6 +44,12 @@ function initModernUI() {
     
     // Add visual feedback on interactions
     initVisualFeedback();
+    
+    // Initialize CPU-based theme
+    initCpuTheme();
+    
+    // Fix configuration table display
+    fixConfigTableDisplay();
 }
 
 // Add animation classes to elements for entrance animations
@@ -526,6 +532,216 @@ function updateProgressSteps() {
     // Update active step
     steps.forEach(step => step.classList.remove('active'));
     steps[activeStepIndex].classList.add('active');
+}
+
+// Initialize CPU-based theme
+function initCpuTheme() {
+    // Define theme colors
+    const themes = {
+        'Intel': {
+            primary: '#0071c5',
+            secondary: '#00c7fd',
+            gradient: 'linear-gradient(135deg, #0071c5, #00c7fd)',
+            accentLight: 'rgba(0, 113, 197, 0.1)',
+            accentMedium: 'rgba(0, 113, 197, 0.3)'
+        },
+        'Amd': {
+            primary: '#ED1C24',
+            secondary: '#ff4c4c',
+            gradient: 'linear-gradient(135deg, #ED1C24, #ff4c4c)',
+            accentLight: 'rgba(237, 28, 36, 0.1)',
+            accentMedium: 'rgba(237, 28, 36, 0.3)'
+        }
+    };
+    
+    // Create style element for dynamic theming
+    const themeStyle = document.createElement('style');
+    themeStyle.id = 'cpu-theme-style';
+    document.head.appendChild(themeStyle);
+    
+    // Function to apply theme based on CPU type
+    function applyCpuTheme(cpuType) {
+        const theme = themes[cpuType] || themes['Intel']; // Default to Intel if not found
+        
+        // Update CSS variables
+        document.documentElement.style.setProperty('--primary-color', theme.primary);
+        document.documentElement.style.setProperty('--primary-gradient', theme.gradient);
+        
+        // Update header background
+        const header = document.querySelector('header');
+        if (header) {
+            header.style.background = theme.gradient;
+        }
+        
+        // Add theme class to body
+        document.body.classList.remove('intel-theme', 'amd-theme');
+        document.body.classList.add(`${cpuType.toLowerCase()}-theme`);
+        
+        // Update theme styles
+        themeStyle.textContent = `
+            .selection-section::before {
+                background: ${theme.gradient};
+            }
+            .section-header i {
+                background: ${theme.gradient};
+            }
+            .brand-option.selected {
+                border-color: ${theme.primary};
+                box-shadow: 0 0 15px ${theme.primary}80;
+                background-color: ${theme.accentLight};
+            }
+            .progress-step.active {
+                background: ${theme.gradient} !important;
+            }
+            .primary-btn, .btn-configure {
+                background: ${theme.gradient} !important;
+            }
+            
+            /* Game card selection */
+            .game-card.selected {
+                border: 3px solid ${theme.primary} !important;
+                box-shadow: 0 10px 20px ${theme.primary}50 !important;
+            }
+            
+            /* Dropdown focus */
+            .dropdown:focus {
+                border-color: ${theme.primary};
+                box-shadow: 0 0 0 3px ${theme.primary}40;
+            }
+            
+            /* Config table header */
+            #config-table table thead tr {
+                background-color: ${theme.primary};
+            }
+        `;
+    }
+    
+    // Listen for CPU type selection changes
+    const cpuTypeDropdown = document.getElementById('cpu-type');
+    if (cpuTypeDropdown) {
+        // Apply initial theme
+        applyCpuTheme(cpuTypeDropdown.value || 'Intel');
+        
+        // Listen for changes
+        cpuTypeDropdown.addEventListener('change', function() {
+            applyCpuTheme(this.value);
+        });
+    }
+    
+    // Add direct click handler for CPU options
+    const intelOption = document.getElementById('intel-option');
+    const amdOption = document.getElementById('amd-option');
+    
+    if (intelOption) {
+        intelOption.addEventListener('click', function() {
+            applyCpuTheme('Intel');
+        });
+    }
+    
+    if (amdOption) {
+        amdOption.addEventListener('click', function() {
+            applyCpuTheme('Amd');
+        });
+    }
+}
+
+// Fix configuration table display issues
+function fixConfigTableDisplay() {
+    // Add listeners to ensure config table is shown when needed
+    const calculateButton = document.getElementById('calculate-button');
+    const configTable = document.getElementById('config-table');
+    const gameGenre = document.getElementById('game-genre');
+    const cpuType = document.getElementById('cpu-type');
+    const budgetRange = document.getElementById('budget-range');
+    
+    // Add default handler for calculate button
+    if (calculateButton && configTable) {
+        calculateButton.addEventListener('click', function() {
+            // Ensure the table is visible
+            configTable.style.display = 'block';
+            
+            // Scroll to the table
+            setTimeout(() => {
+                configTable.scrollIntoView({behavior: 'smooth'});
+            }, 100);
+            
+            // Add highlight animation
+            configTable.animate([
+                { boxShadow: '0 0 0 4px var(--primary-color)' },
+                { boxShadow: '0 0 20px 0px var(--primary-color)' },
+                { boxShadow: '0 0 0 4px var(--primary-color)' }
+            ], {
+                duration: 1500,
+                easing: 'ease-in-out'
+            });
+        });
+    }
+    
+    // Check if all main components are selected and show table automatically
+    function checkAndShowConfigTable() {
+        if (!configTable) return;
+        
+        const mainComponentDropdowns = [
+            document.getElementById('cpu'),
+            document.getElementById('mainboard'),
+            document.getElementById('vga'),
+            document.getElementById('ram')
+        ];
+        
+        const allMainComponentsSelected = mainComponentDropdowns.every(dropdown => 
+            dropdown && dropdown.value && dropdown.value !== ''
+        );
+        
+        if (allMainComponentsSelected) {
+            // All main components are selected, show the table
+            configTable.style.display = 'block';
+            
+            // Scroll to the table with a small delay
+            setTimeout(() => {
+                configTable.scrollIntoView({behavior: 'smooth'});
+            }, 300);
+        }
+    }
+    
+    // Listen for changes to all component dropdowns
+    const componentDropdowns = document.querySelectorAll('.dropdown');
+    componentDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            checkAndShowConfigTable();
+        });
+    });
+    
+    // Listen for game genre changes
+    if (gameGenre) {
+        gameGenre.addEventListener('change', function() {
+            // If all other criteria are met, show the table
+            if (cpuType && cpuType.value && budgetRange && parseInt(budgetRange.value) > 0) {
+                setTimeout(checkAndShowConfigTable, 500);
+            }
+        });
+    }
+    
+    // Create observer to watch for table content changes
+    const tableObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                // Table content has changed, ensure it's visible
+                if (configTable.style.display === 'none') {
+                    configTable.style.display = 'block';
+                }
+            }
+        });
+    });
+    
+    // Start observing the table
+    if (configTable) {
+        tableObserver.observe(configTable, { 
+            childList: true, 
+            subtree: true, 
+            attributes: true, 
+            attributeFilter: ['style', 'class'] 
+        });
+    }
 }
 
 // Add global event listener for dropdown changes to update progress
