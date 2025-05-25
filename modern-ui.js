@@ -6,6 +6,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all modern UI enhancements
     initModernUI();
+    
+    // Initialize config table buttons
+    initConfigTableButtons();
 });
 
 function initModernUI() {
@@ -654,6 +657,22 @@ function fixConfigTableDisplay() {
     const cpuType = document.getElementById('cpu-type');
     const budgetRange = document.getElementById('budget-range');
     
+    // Force show config table immediately
+    if (configTable) {
+        configTable.style.display = 'block';
+        
+        // Add a highlight animation to make it more noticeable
+        configTable.animate([
+            { boxShadow: '0 0 0 4px var(--primary-color)' },
+            { boxShadow: '0 0 20px 0px var(--primary-color)' },
+            { boxShadow: '0 0 0 4px var(--primary-color)' }
+        ], {
+            duration: 1500,
+            easing: 'ease-in-out',
+            iterations: 3
+        });
+    }
+    
     // Add default handler for calculate button
     if (calculateButton && configTable) {
         calculateButton.addEventListener('click', function() {
@@ -677,10 +696,50 @@ function fixConfigTableDisplay() {
         });
     }
     
+    // Fix game selection issues
+    const gameCards = document.querySelectorAll('.game-card');
+    if (gameCards.length > 0 && gameGenre) {
+        gameCards.forEach(card => {
+            // Add enhanced click handler
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get game ID from data attribute
+                const gameId = this.getAttribute('data-game');
+                if (!gameId) return;
+                
+                // Visually update the selection
+                gameCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Update dropdown value
+                gameGenre.value = gameId;
+                
+                // Force dispatch change event
+                gameGenre.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // Show config table after game selection
+                if (configTable) {
+                    setTimeout(() => {
+                        configTable.style.display = 'block';
+                        configTable.scrollIntoView({behavior: 'smooth'});
+                    }, 300);
+                }
+                
+                console.log(`Game selected: ${gameId}`);
+            });
+        });
+    }
+    
     // Check if all main components are selected and show table automatically
     function checkAndShowConfigTable() {
         if (!configTable) return;
         
+        // Make table visible regardless of selections
+        configTable.style.display = 'block';
+        
+        // Check if we have main components selected
         const mainComponentDropdowns = [
             document.getElementById('cpu'),
             document.getElementById('mainboard'),
@@ -688,20 +747,22 @@ function fixConfigTableDisplay() {
             document.getElementById('ram')
         ];
         
-        const allMainComponentsSelected = mainComponentDropdowns.every(dropdown => 
+        const allMainComponentsSelected = mainComponentDropdowns.filter(Boolean).some(dropdown => 
             dropdown && dropdown.value && dropdown.value !== ''
         );
         
         if (allMainComponentsSelected) {
-            // All main components are selected, show the table
-            configTable.style.display = 'block';
-            
             // Scroll to the table with a small delay
             setTimeout(() => {
                 configTable.scrollIntoView({behavior: 'smooth'});
             }, 300);
         }
     }
+    
+    // Always check if table should be shown after page load
+    window.addEventListener('load', function() {
+        setTimeout(checkAndShowConfigTable, 1000);
+    });
     
     // Listen for changes to all component dropdowns
     const componentDropdowns = document.querySelectorAll('.dropdown');
@@ -714,9 +775,12 @@ function fixConfigTableDisplay() {
     // Listen for game genre changes
     if (gameGenre) {
         gameGenre.addEventListener('change', function() {
-            // If all other criteria are met, show the table
-            if (cpuType && cpuType.value && budgetRange && parseInt(budgetRange.value) > 0) {
-                setTimeout(checkAndShowConfigTable, 500);
+            // Always show the table when game changes
+            if (configTable) {
+                configTable.style.display = 'block';
+                setTimeout(() => {
+                    configTable.scrollIntoView({behavior: 'smooth'});
+                }, 300);
             }
         });
     }
@@ -742,6 +806,20 @@ function fixConfigTableDisplay() {
             attributeFilter: ['style', 'class'] 
         });
     }
+    
+    // Add direct click handler for auto-select button
+    const autoSelectButton = document.getElementById('manual-auto-select');
+    if (autoSelectButton && configTable) {
+        autoSelectButton.addEventListener('click', function() {
+            // Force show the config table
+            configTable.style.display = 'block';
+            
+            // Scroll to it
+            setTimeout(() => {
+                configTable.scrollIntoView({behavior: 'smooth'});
+            }, 300);
+        });
+    }
 }
 
 // Add global event listener for dropdown changes to update progress
@@ -754,4 +832,55 @@ document.addEventListener('change', function(e) {
 // Initialize progress tracking on page load
 window.addEventListener('load', function() {
     setTimeout(updateProgressSteps, 500);
-}); 
+});
+
+// Initialize button handlers for the config table
+function initConfigTableButtons() {
+    // Get the refresh table button
+    const refreshTableButton = document.getElementById('refresh-table');
+    if (refreshTableButton) {
+        refreshTableButton.addEventListener('click', function() {
+            // Force update table data if available
+            if (typeof window.updateConfigTableImages === 'function') {
+                window.updateConfigTableImages();
+            }
+            
+            // Get config table
+            const configTable = document.getElementById('config-table');
+            if (configTable) {
+                // Add refresh animation
+                configTable.animate([
+                    { opacity: 0.5 },
+                    { opacity: 1 }
+                ], {
+                    duration: 500,
+                    easing: 'ease-out'
+                });
+                
+                // Make sure it's visible
+                configTable.style.display = 'block';
+                
+                // Scroll to it
+                configTable.scrollIntoView({behavior: 'smooth'});
+            }
+        });
+    }
+    
+    // Get the show config details button
+    const showConfigDetailsButton = document.getElementById('show-config-details');
+    if (showConfigDetailsButton) {
+        showConfigDetailsButton.addEventListener('click', function() {
+            // Try to find and click the existing calculate button to trigger the modal
+            const calculateButton = document.getElementById('calculate-button');
+            if (calculateButton) {
+                calculateButton.click();
+            }
+            
+            // As a fallback, try to show the modal directly
+            const summaryModal = document.getElementById('summary-modal');
+            if (summaryModal) {
+                summaryModal.style.display = 'block';
+            }
+        });
+    }
+} 
