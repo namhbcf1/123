@@ -274,10 +274,9 @@
     </script>
 
     <style id="force-display-styles">
-    /* Force display of all tables and components */
+    /* Force display of all tables and components - but NOT modals */
     table, #component-table, #configuration-table, .config-table, .component-table,
-    .table-container, .table-responsive, .component-selection-container, .config-section,
-    .modal-content, .modal-body, .modal, #configuration-detail-modal {
+    .table-container, .table-responsive, .component-selection-container, .config-section {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -300,26 +299,10 @@
         border: 1px solid #ddd !important;
     }
 
-    /* Make sure modals appear properly */
-    .modal {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-color: rgba(0,0,0,0.5) !important;
-        z-index: 9000 !important;
-        overflow: auto !important;
-    }
-
-    .modal-content {
-        background-color: white !important;
-        margin: 10% auto !important;
-        padding: 20px !important;
-        width: 80% !important;
-        max-width: 800px !important;
-        border-radius: 5px !important;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3) !important;
+    /* Don't force modal visibility - allow them to be toggled properly */
+    .modal, .modal-content, .modal-body, #configuration-detail-modal {
+        /* Remove the forced display */
+        display: none;
     }
     </style>
 </head>
@@ -330,6 +313,9 @@
         <button id="force-show-tables" style="background-color: #ff5722; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
             Hiển thị cấu hình
         </button>
+        <button id="toggle-debug" style="background-color: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px;">
+            Debug
+        </button>
     </div>
 
     <script>
@@ -338,53 +324,55 @@
         const forceShowButton = document.getElementById('force-show-tables');
         if (forceShowButton) {
             forceShowButton.addEventListener('click', function() {
-                // Force show all tables
-                document.querySelectorAll('table, #component-table, #configuration-table, .config-table, .component-table').forEach(function(table) {
-                    if (table) {
-                        table.style.display = 'table';
-                        table.style.visibility = 'visible';
-                        table.style.opacity = '1';
-                    }
-                });
+                // Find the configuration table
+                const configTable = document.querySelector('#config-table, .config-table');
+                if (configTable) {
+                    // Only make the table visible
+                    configTable.style.display = 'table';
+                    configTable.style.visibility = 'visible';
+                    configTable.style.opacity = '1';
+                    
+                    // Scroll to it
+                    configTable.scrollIntoView({behavior: 'smooth'});
+                }
                 
-                // Force show all containers
-                document.querySelectorAll('.table-container, .table-responsive, .component-selection-container, .config-section, .modal-content').forEach(function(container) {
-                    if (container) {
-                        container.style.display = 'block';
-                        container.style.visibility = 'visible';
-                        container.style.opacity = '1';
-                    }
-                });
+                // Trigger calculate buttons if table not found
+                if (!configTable) {
+                    const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
+                    calculateButtons.forEach(button => {
+                        if (button && typeof button.click === 'function') {
+                            try {
+                                button.click();
+                            } catch (err) {}
+                        }
+                    });
+                }
                 
-                // Trigger calculate buttons
-                const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
-                calculateButtons.forEach(button => {
-                    if (button && typeof button.click === 'function') {
-                        try {
-                            button.click();
-                        } catch (err) {}
-                    }
-                });
-                
-                // Try calling known functions
+                // Try calling showConfigDetailModal function to show detailed configuration
                 try {
                     if (typeof window.showConfigDetailModal === 'function') {
                         window.showConfigDetailModal();
                     }
-                    
-                    if (typeof window.forceShowComponentTable === 'function') {
-                        window.forceShowComponentTable();
-                    }
-                    
-                    if (typeof window.forceShowConfigTables === 'function') {
-                        window.forceShowConfigTables();
-                    }
-                    
-                    if (typeof window.fixConfigTableDisplay === 'function') {
-                        window.fixConfigTableDisplay();
-                    }
                 } catch (err) {
-                    console.error('Error calling config functions:', err);
+                    console.error('Error calling showConfigDetailModal:', err);
+                }
+            });
+        }
+        
+        // Toggle debug panel visibility
+        const toggleDebugButton = document.getElementById('toggle-debug');
+        const debugHelper = document.getElementById('debug-helper');
+        
+        if (toggleDebugButton && debugHelper) {
+            // Initially hide debug panel
+            debugHelper.style.display = 'none';
+            
+            toggleDebugButton.addEventListener('click', function() {
+                if (debugHelper.style.display === 'none') {
+                    debugHelper.style.display = 'block';
+                    debugHelper(); // Update debug info immediately
+                } else {
+                    debugHelper.style.display = 'none';
                 }
             });
         }
@@ -1545,8 +1533,12 @@
 </html>
 
 <!-- At the end of the body tag, add this debug helper -->
-<div id="debug-helper" style="position: fixed; bottom: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 10px; font-size: 12px; z-index: 9999; max-width: 400px; max-height: 300px; overflow: auto;">
-    <div>Debug Status: <button id="refresh-debug" style="background: #4CAF50; color: white; border: none; padding: 2px 5px; margin-left: 10px; cursor: pointer;">Refresh</button></div>
+<div id="debug-helper" style="position: fixed; bottom: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 10px; font-size: 12px; z-index: 9999; max-width: 400px; max-height: 300px; overflow: auto; display: none;">
+    <div>
+        Debug Status: 
+        <button id="refresh-debug" style="background: #4CAF50; color: white; border: none; padding: 2px 5px; margin-left: 10px; cursor: pointer;">Refresh</button>
+        <button id="close-debug" style="background: #f44336; color: white; border: none; padding: 2px 5px; margin-left: 5px; cursor: pointer;">Close</button>
+    </div>
     <div id="debug-status"></div>
 </div>
 
@@ -1631,8 +1623,8 @@ function debugHelper() {
     debugStatus.innerHTML = status;
 }
 
-// Run debug helper every 2 seconds
-let debugInterval = setInterval(debugHelper, 2000);
+// Run debug helper every 5 seconds (less frequent to reduce performance impact)
+let debugInterval = setInterval(debugHelper, 5000);
 debugHelper(); // Run immediately
 
 // Add event to show/hide debug panel
@@ -1641,55 +1633,20 @@ document.getElementById('debug-helper').addEventListener('dblclick', function() 
     debugStatus.style.display = debugStatus.style.display === 'none' ? 'block' : 'none';
 });
 
+// Add close button functionality
+document.getElementById('close-debug').addEventListener('click', function() {
+    const debugHelper = document.getElementById('debug-helper');
+    if (debugHelper) {
+        debugHelper.style.display = 'none';
+    }
+});
+
 // Add refresh button functionality
 document.getElementById('refresh-debug').addEventListener('click', function() {
     clearInterval(debugInterval);
     debugHelper(); // Run immediately
-    debugInterval = setInterval(debugHelper, 2000); // Reset interval
+    debugInterval = setInterval(debugHelper, 5000); // Reset interval
 });
-</script>
-
-<!-- Immediate script to force all tables to display -->
-<script>
-// Immediate script to force all tables to display
-(function() {
-    function forceTablesVisible() {
-        // Force all tables to be visible
-        document.querySelectorAll('table, #component-table, #configuration-table, .config-table, .component-table').forEach(function(table) {
-            if (table) {
-                table.style.display = 'table';
-                table.style.visibility = 'visible';
-                table.style.opacity = '1';
-            }
-        });
-        
-        // Force containers to be visible
-        document.querySelectorAll('.table-container, .table-responsive, .component-selection-container, .config-section').forEach(function(container) {
-            if (container) {
-                container.style.display = 'block';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-            }
-        });
-    }
-    
-    // Run immediately
-    forceTablesVisible();
-    
-    // Run again after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        forceTablesVisible();
-        setTimeout(forceTablesVisible, 500);
-        setTimeout(forceTablesVisible, 1000);
-    });
-    
-    // Run again after window is fully loaded
-    window.addEventListener('load', function() {
-        forceTablesVisible();
-        setTimeout(forceTablesVisible, 1000);
-        setTimeout(forceTablesVisible, 2000);
-    });
-})();
 </script>
 
 <!-- Direct table display fix script - add at the very end -->
@@ -1699,14 +1656,15 @@ document.getElementById('refresh-debug').addEventListener('click', function() {
     function forceElementsVisible() {
         // Find all elements with display:none style attribute
         document.querySelectorAll('[style*="display: none"], [style*="display:none"]').forEach(function(element) {
-            // Check if it's a table or container we want to show
-            if (element.tagName === 'TABLE' || 
+            // Check if it's a table or container we want to show (but NOT modals)
+            if ((element.tagName === 'TABLE' || 
                 element.id === 'component-table' || 
                 element.id === 'configuration-table' ||
                 element.id === 'config-table' ||
-                element.className.includes('config') ||
-                element.className.includes('table') ||
-                element.className.includes('modal')) {
+                element.className.includes('config-table') ||
+                element.className.includes('table-responsive')) &&
+                !element.className.includes('modal') && 
+                !element.id.includes('modal')) {
                 
                 // Force display with inline style
                 element.style.cssText = element.style.cssText.replace(/display\s*:\s*none/gi, 'display: table');
@@ -1717,10 +1675,12 @@ document.getElementById('refresh-debug').addEventListener('click', function() {
                 console.log('Forced element visible:', element.tagName, element.id || element.className);
             }
             
-            // Check if it's a container
-            if (element.className.includes('container') || 
+            // Check if it's a container (but NOT a modal)
+            if ((element.className.includes('container') || 
                 element.className.includes('section') || 
-                element.className.includes('modal')) {
+                element.className.includes('table-container')) &&
+                !element.className.includes('modal') && 
+                !element.id.includes('modal')) {
                 
                 // Force display with inline style
                 element.style.cssText = element.style.cssText.replace(/display\s*:\s*none/gi, 'display: block');
@@ -1732,42 +1692,184 @@ document.getElementById('refresh-debug').addEventListener('click', function() {
             }
         });
         
-        // Also target modal elements specifically
-        document.querySelectorAll('.modal, .modal-content, .modal-body, #configuration-detail-modal').forEach(function(modal) {
-            modal.style.display = 'block';
-            modal.style.visibility = 'visible';
-            modal.style.opacity = '1';
-            
-            // Check if this modal contains a table and force it visible
-            modal.querySelectorAll('table').forEach(function(table) {
-                table.style.display = 'table';
-                table.style.visibility = 'visible';
-                table.style.opacity = '1';
-            });
+        // Make sure modals have proper close buttons
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            // Don't force modals to be visible
+            // Instead, make sure they have close buttons
+            if (!modal.querySelector('.close-modal')) {
+                const closeButton = document.createElement('button');
+                closeButton.className = 'close-modal';
+                closeButton.innerHTML = '&times;';
+                closeButton.style.cssText = 'position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 24px; cursor: pointer;';
+                
+                closeButton.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+                
+                // Add to modal if it has a header, or to the modal itself
+                const header = modal.querySelector('.modal-header');
+                if (header) {
+                    header.appendChild(closeButton);
+                } else {
+                    modal.appendChild(closeButton);
+                }
+            }
         });
     }
 
-    // Run multiple times to catch dynamically created elements
-    setTimeout(forceElementsVisible, 1000);
-    setTimeout(forceElementsVisible, 2000);
-    setTimeout(forceElementsVisible, 3000);
-    setTimeout(forceElementsVisible, 5000);
+    // Run after DOM is loaded, but not automatically - wait for user action
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add a MutationObserver to handle any dynamically added config tables
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                    // Check if any of the added nodes are tables
+                    for (let i = 0; i < mutation.addedNodes.length; i++) {
+                        const node = mutation.addedNodes[i];
+                        if (node.tagName === 'TABLE' || 
+                            (node.id && (node.id === 'config-table' || node.id === 'component-table')) ||
+                            (node.className && node.className.includes('config-table'))) {
+                            
+                            // Make only this specific table visible
+                            node.style.display = 'table';
+                            node.style.visibility = 'visible';
+                            node.style.opacity = '1';
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Start observing for table changes only
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+    });
+})();
+</script>
+
+<!-- Add modal closing script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add close buttons to all modals
+    function addCloseButtonsToModals() {
+        document.querySelectorAll('.modal, #summary-modal, #component-detail-modal').forEach(function(modal) {
+            // Add close button if it doesn't exist
+            if (!modal.querySelector('.close') && !modal.querySelector('.close-modal')) {
+                // Create close button
+                const closeButton = document.createElement('button');
+                closeButton.className = 'close-modal';
+                closeButton.innerHTML = '&times;';
+                closeButton.style.cssText = 'position: absolute; right: 15px; top: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #000; z-index: 9999;';
+                
+                // Add click handler
+                closeButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    modal.style.display = 'none';
+                    
+                    // Remove modal backdrop if it exists
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.parentNode.removeChild(backdrop);
+                    }
+                    
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                });
+                
+                // Insert close button
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    // Insert at the beginning of modal content
+                    modalContent.insertBefore(closeButton, modalContent.firstChild);
+                } else {
+                    // No modal content container, add directly to modal
+                    modal.appendChild(closeButton);
+                }
+                
+                // Add ESC key handler
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && modal.style.display !== 'none') {
+                        modal.style.display = 'none';
+                        
+                        // Remove modal backdrop
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.parentNode.removeChild(backdrop);
+                        }
+                        
+                        // Remove modal-open class from body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                });
+                
+                // Also add click outside to close
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        
+                        // Remove modal backdrop
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.parentNode.removeChild(backdrop);
+                        }
+                        
+                        // Remove modal-open class from body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                });
+            }
+        });
+    }
     
-    // Also add a MutationObserver to catch dynamically added elements
+    // Run when DOM is loaded
+    addCloseButtonsToModals();
+    
+    // Also run whenever showConfigDetailModal is called
+    const originalShowConfigDetailModal = window.showConfigDetailModal;
+    if (typeof originalShowConfigDetailModal === 'function') {
+        window.showConfigDetailModal = function() {
+            // Call the original function
+            originalShowConfigDetailModal.apply(this, arguments);
+            
+            // Add close buttons after the modal is shown
+            setTimeout(addCloseButtonsToModals, 100);
+        };
+    }
+    
+    // Observe DOM for new modals
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-                forceElementsVisible();
+                // Check if any modals were added
+                for (let i = 0; i < mutation.addedNodes.length; i++) {
+                    const node = mutation.addedNodes[i];
+                    if (node.classList && 
+                        (node.classList.contains('modal') || 
+                         node.id === 'summary-modal' || 
+                         node.id === 'component-detail-modal')) {
+                        addCloseButtonsToModals();
+                    }
+                }
             }
         });
     });
     
-    // Start observing when the DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        observer.observe(document.body, { childList: true, subtree: true });
+    // Start observing
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true
     });
-    
-    // Check periodically for elements that might be hidden
-    setInterval(forceElementsVisible, 3000);
-})();
+});
 </script>
+
