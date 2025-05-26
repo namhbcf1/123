@@ -3428,8 +3428,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function showConfigDetailModal(configData) {
         console.log("Showing config detail modal");
         
+        // Check if required components are selected
+        const cpu = document.getElementById('cpu');
+        const mainboard = document.getElementById('mainboard');
+        const vga = document.getElementById('vga');
+        
+        // Require at least CPU and mainboard to be selected
+        if ((!cpu || !cpu.value) || (!mainboard || !mainboard.value) || (!vga || !vga.value)) {
+            alert('Vui lòng chọn ít nhất CPU, Mainboard và VGA trước khi xem chi tiết cấu hình.');
+            return;
+        }
+        
         // Ensure the modal exists before proceeding
-        let modal = document.getElementById('summary-modal');
+        let modal = document.getElementById('component-detail-modal');
         if (!modal) {
             console.log("Modal not found, creating it");
             modal = createModalElements();
@@ -3452,6 +3463,44 @@ document.addEventListener('DOMContentLoaded', function () {
             configTable.style.display = 'block';
             configTable.style.visibility = 'visible';
         }
+        
+        // Set up close button handler
+        const closeButtons = modal.querySelectorAll('[data-dismiss="modal"], .close, .btn-secondary');
+        closeButtons.forEach(function(button) {
+            // Remove existing handlers to avoid duplicates
+            const newButton = button.cloneNode(true);
+            if (button.parentNode) {
+                button.parentNode.replaceChild(newButton, button);
+            }
+            
+            // Add click handler to close the modal
+            newButton.addEventListener('click', function() {
+                modal.style.display = 'none';
+                
+                // Remove backdrop if it exists
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop && backdrop.parentNode) {
+                    backdrop.parentNode.removeChild(backdrop);
+                }
+                
+                console.log('Modal closed via button click');
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                
+                // Remove backdrop
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop && backdrop.parentNode) {
+                    backdrop.parentNode.removeChild(backdrop);
+                }
+                
+                console.log('Modal closed by clicking outside');
+            }
+        });
         
         // Populate modal components list if it exists
         if (modalComponentsList) {
@@ -4082,7 +4131,7 @@ window.checkSocketCompatibility = function(cpuKey, mainboardKey) {
     }
 };
 
-// Add a direct trigger to show the configuration table after component changes, but only when appropriate
+// Add a direct trigger to show the configuration table ONLY on explicit user action
 document.addEventListener('DOMContentLoaded', function() {
     // List of all component dropdowns to monitor
     const componentDropdowns = [
@@ -4091,7 +4140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
     
     // Biến để kiểm soát hiển thị bảng
-    window.userClosedConfigModal = false;
+    window.userClosedConfigModal = true; // Default to closed
     window.hasRequiredSelections = false;
     
     // Hàm kiểm tra đã đủ điều kiện hiển thị bảng chưa
@@ -4110,28 +4159,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const dropdown = document.getElementById(id);
         if (dropdown) {
             dropdown.addEventListener('change', function() {
-                console.log(`Component ${id} changed, checking if should display table`);
+                console.log(`Component ${id} changed`);
                 
-                // Delay a bit to let other handlers run first
-                setTimeout(() => {
-                    // Kiểm tra xem có đủ điều kiện để hiển thị và người dùng chưa đóng bảng
-                    window.hasRequiredSelections = checkRequiredSelections();
-                    
-                    // Don't automatically show the modal - let the user click a button to show it
-                    // if (window.hasRequiredSelections && !window.userClosedConfigModal) {
-                    //     if (typeof window.showConfigDetailModal === 'function') {
-                    //         console.log(`Showing configuration table after ${id} change`);
-                    //         window.showConfigDetailModal();
-                    //     }
-                    // } else {
-                    //     console.log(`Not showing table: hasRequiredSelections=${window.hasRequiredSelections}, userClosedModal=${window.userClosedConfigModal}`);
-                    // }
-                }, 800);
+                // Just update the selection status, but don't show anything automatically
+                window.hasRequiredSelections = checkRequiredSelections();
             });
         }
     });
     
-    console.log('Added conditional table display triggers to all component dropdowns');
+    console.log('Added component change monitoring');
     
     // Create a button to manually show the configuration table
     const showTableButtonContainer = document.createElement('div');

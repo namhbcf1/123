@@ -169,8 +169,19 @@
     
     // Hiển thị modal chi tiết cấu hình
     function showConfigDetailModal(configData) {
+        // Kiểm tra xem đã chọn đủ linh kiện cơ bản chưa
+        const cpu = document.getElementById('cpu');
+        const mainboard = document.getElementById('mainboard');
+        const vga = document.getElementById('vga');
+        
+        // Yêu cầu ít nhất CPU, mainboard và VGA phải được chọn
+        if ((!cpu || !cpu.value) || (!mainboard || !mainboard.value) || (!vga || !vga.value)) {
+            alert('Vui lòng chọn ít nhất CPU, Mainboard và VGA trước khi xem chi tiết cấu hình.');
+            return;
+        }
+        
         // Tìm modal
-        const modal = document.querySelector('.modal');
+        const modal = document.getElementById('component-detail-modal');
         const modalContent = modal ? modal.querySelector('.modal-content') : null;
         
         if (!modal || !modalContent) {
