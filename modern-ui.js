@@ -648,133 +648,74 @@ function initCpuTheme() {
     }
 }
 
-// Fix configuration table display issues
+/**
+ * Fix configuration table display issues
+ */
 function fixConfigTableDisplay() {
-    // Add listeners to ensure config table is shown when needed
-    const calculateButton = document.getElementById('calculate-button');
-    const configTable = document.getElementById('config-table');
-    const summaryModal = document.getElementById('summary-modal');
-    const gameGenre = document.getElementById('game-genre');
-    const cpuType = document.getElementById('cpu-type');
-    const budgetRange = document.getElementById('budget-range');
-    const showAllConfigTablesButton = document.getElementById('show-all-config-tables');
-    
     console.log('Fixing config table display');
     
-    // Force show config table immediately
-    if (configTable) {
-        configTable.style.display = 'block';
-        configTable.style.visibility = 'visible';
+    // Ensure we run this when the document is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyConfigTableFixes);
+    } else {
+        applyConfigTableFixes();
+    }
+    
+    // Apply fixes on load event as well
+    window.addEventListener('load', applyConfigTableFixes);
+    
+    // Apply fixes again after a delay
+    setTimeout(applyConfigTableFixes, 1500);
+    setTimeout(applyConfigTableFixes, 3000);
+    
+    function applyConfigTableFixes() {
+        // Fix tables display
+        const tables = document.querySelectorAll('#component-table, #configuration-table, .config-table, table');
+        tables.forEach(table => {
+            if (table) {
+                table.style.display = 'table';
+                table.style.visibility = 'visible';
+                table.style.opacity = '1';
+            }
+        });
         
-        // Add a highlight animation to make it more noticeable
-        configTable.animate([
-            { boxShadow: '0 0 0 4px var(--primary-color)' },
-            { boxShadow: '0 0 20px 0px var(--primary-color)' },
-            { boxShadow: '0 0 0 4px var(--primary-color)' }
-        ], {
-            duration: 1500,
-            easing: 'ease-in-out',
-            iterations: 3
+        // Fix table containers
+        const tableContainers = document.querySelectorAll('.table-container, .table-responsive');
+        tableContainers.forEach(container => {
+            if (container) {
+                container.style.display = 'block';
+                container.style.visibility = 'visible';
+                container.style.opacity = '1';
+            }
+        });
+        
+        // Fix any other container that might hide tables
+        document.querySelectorAll('.component-selection-container, .config-section').forEach(section => {
+            if (section) {
+                section.style.display = 'block';
+                section.style.visibility = 'visible';
+                section.style.opacity = '1';
+            }
+        });
+        
+        // Simulate click on calculate button if it exists
+        const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
+        calculateButtons.forEach(button => {
+            if (button && typeof button.click === 'function') {
+                try {
+                    button.click();
+                } catch (err) {
+                    console.warn('Error clicking calculate button:', err);
+                }
+            }
         });
         
         console.log('Config table visibility enforced');
     }
-    
-    // Make sure modal exists
-    if (!summaryModal && typeof window.createModalElements === 'function') {
-        console.log('Creating modal elements because they do not exist');
-        window.createModalElements();
-    }
-    
-    // Add stronger handler for show-all-config-tables button
-    if (showAllConfigTablesButton) {
-        showAllConfigTablesButton.addEventListener('click', function() {
-            console.log('Show all config tables button clicked in modern-ui.js');
-            
-            // Force show both configuration tables
-            if (typeof window.forceShowComponentTable === 'function') {
-                window.forceShowComponentTable();
-            } else {
-                console.error('forceShowComponentTable function not found, using fallback');
-                
-                // Show main config table
-                if (configTable) {
-                    configTable.style.display = 'block';
-                    configTable.style.visibility = 'visible';
-                    configTable.scrollIntoView({ behavior: 'smooth' });
-                }
-                
-                // Show the modal with detailed configuration
-                const modal = document.getElementById('summary-modal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    
-                    // Make sure modal content is updated
-                    if (typeof window.showConfigDetailModal === 'function') {
-                        window.showConfigDetailModal();
-                    } else if (typeof window.calculateTotalPriceAndSummary === 'function') {
-                        window.calculateTotalPriceAndSummary();
-                    }
-                } else if (typeof window.createModalElements === 'function') {
-                    const newModal = window.createModalElements();
-                    if (newModal) {
-                        newModal.style.display = 'block';
-                        if (typeof window.showConfigDetailModal === 'function') {
-                            window.showConfigDetailModal();
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Add default handler for calculate button
-    if (calculateButton) {
-        calculateButton.addEventListener('click', function() {
-            console.log('Calculate button clicked in modern-ui.js');
-            
-            // Ensure the table is visible
-            if (configTable) {
-                configTable.style.display = 'block';
-                configTable.style.visibility = 'visible';
-                
-                // Scroll to the table
-                setTimeout(() => {
-                    configTable.scrollIntoView({behavior: 'smooth'});
-                }, 100);
-                
-                // Add highlight animation
-                configTable.animate([
-                    { boxShadow: '0 0 0 4px var(--primary-color)' },
-                    { boxShadow: '0 0 20px 0px var(--primary-color)' },
-                    { boxShadow: '0 0 0 4px var(--primary-color)' }
-                ], {
-                    duration: 1500,
-                    easing: 'ease-in-out'
-                });
-            }
-            
-            // Also show the modal popup
-            const modal = document.getElementById('summary-modal');
-            if (modal) {
-                modal.style.display = 'block';
-                
-                // Make sure modal content is updated
-                if (typeof window.showConfigDetailModal === 'function') {
-                    window.showConfigDetailModal();
-                }
-            } else if (typeof window.createModalElements === 'function') {
-                const newModal = window.createModalElements();
-                if (newModal) {
-                    newModal.style.display = 'block';
-                    if (typeof window.showConfigDetailModal === 'function') {
-                        window.showConfigDetailModal();
-                    }
-                }
-            }
-        });
-    }
 }
+
+// Call the function
+document.addEventListener('DOMContentLoaded', fixConfigTableDisplay);
 
 // Add global event listener for dropdown changes to update progress
 document.addEventListener('change', function(e) {

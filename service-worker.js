@@ -4,18 +4,18 @@ const DYNAMIC_CACHE = 'tpc-dynamic-cache-v2';
 
 // Danh sách tài nguyên tĩnh cần cache ngay khi cài đặt
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/buildsan.css',
-  '/modal-styles.css',
-  '/buildsan.js',
-  '/enums.js',
-  '/modal-handler.js',
-  '/component-connector.js',
-  '/manifest.json',
-  '/images/icon-192.png',
-  '/images/icon-512.png'
+  './',
+  './index.html',
+  './styles.css',
+  './buildsan.css',
+  './modal-styles.css',
+  './buildsan.js',
+  './enums.js',
+  './modal-handler.js',
+  './component-connector.js',
+  './manifest.json',
+  './images/icon-192.png',
+  './images/icon-512.png'
 ];
 
 // Danh sách domain cần cache
@@ -50,9 +50,16 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Kiểm tra xem URL có phải là tài nguyên tĩnh cần cache không
+  const isStaticAsset = STATIC_ASSETS.some(asset => {
+    // Chuyển đổi địa chỉ tương đối thành đường dẫn
+    const assetPath = new URL(asset, self.location.origin).pathname;
+    return url.pathname.endsWith(assetPath) || url.pathname.includes(assetPath);
+  });
+
   // Chiến lược cache-first cho tài nguyên tĩnh
-  if (STATIC_ASSETS.includes(url.pathname) || 
-      url.pathname.startsWith('/images/') || 
+  if (isStaticAsset || 
+      url.pathname.includes('/images/') || 
       CACHE_DOMAINS.some(domain => url.hostname.includes(domain))) {
     event.respondWith(cacheFirstStrategy(event.request));
   } else {

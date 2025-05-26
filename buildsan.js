@@ -5018,61 +5018,85 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Hide green information sections
     const hideGreenSections = () => {
-        // Hide all green info elements
-        const greenElements = [
-            document.querySelector('div[style*="background-color: #dff0d8"]'),
-            document.querySelector('.alert-success'),
-            document.querySelector('.bg-success'),
-            document.querySelectorAll('.green-info-box'),
-            document.querySelectorAll('[style*="background-color: rgb(223, 240, 216)"]'),
-            document.querySelectorAll('[style*="background-color: rgb(76, 175, 80)"]'),
-            document.querySelectorAll('[style*="background-color: #4CAF50"]'),
-            document.querySelectorAll('[style*="background-color: #2e7d32"]'),
-            document.querySelectorAll('.alert'),
-            document.querySelectorAll('.footer-info')
-        ];
-        
-        greenElements.forEach(elem => {
-            if (elem) {
-                if (elem.length) {
-                    // Handle NodeList
-                    for (let i = 0; i < elem.length; i++) {
-                        if (elem[i]) elem[i].style.display = 'none';
+        try {
+            // Hide all green info elements
+            const greenElements = [
+                document.querySelector('div[style*="background-color: #dff0d8"]'),
+                document.querySelector('.alert-success'),
+                document.querySelector('.bg-success'),
+                document.querySelectorAll('.green-info-box'),
+                document.querySelectorAll('[style*="background-color: rgb(223, 240, 216)"]'),
+                document.querySelectorAll('[style*="background-color: rgb(76, 175, 80)"]'),
+                document.querySelectorAll('[style*="background-color: #4CAF50"]'),
+                document.querySelectorAll('[style*="background-color: #2e7d32"]'),
+                document.querySelectorAll('.alert'),
+                document.querySelectorAll('.footer-info')
+            ];
+            
+            greenElements.forEach(elem => {
+                if (elem) {
+                    if (elem.length) {
+                        // Handle NodeList
+                        for (let i = 0; i < elem.length; i++) {
+                            if (elem[i] && elem[i].style) elem[i].style.display = 'none';
+                        }
+                    } else if (elem.style) {
+                        // Handle single element
+                        elem.style.display = 'none';
                     }
-                } else {
-                    // Handle single element
-                    elem.style.display = 'none';
                 }
-            }
-        });
-        
-        // Hide any footer completely
-        const footer = document.querySelector('footer');
-        if (footer) {
-            footer.style.display = 'none';
+            });
             
-            // Also hide all divs inside footer
-            const allFooterDivs = footer.querySelectorAll('div');
-            allFooterDivs.forEach(div => div.style.display = 'none');
+            // Hide any footer completely
+            const footer = document.querySelector('footer');
+            if (footer && footer.style) {
+                footer.style.display = 'none';
+                
+                // Also hide all divs inside footer
+                const allFooterDivs = footer.querySelectorAll('div');
+                allFooterDivs.forEach(div => {
+                    if (div && div.style) div.style.display = 'none';
+                });
+            }
+            
+            // Hide any elements with green background at the bottom of the page
+            const allDivs = document.querySelectorAll('div');
+            allDivs.forEach(div => {
+                try {
+                    if (!div || !div.style) return;
+                    
+                    const style = window.getComputedStyle(div);
+                    if (!style) return;
+                    
+                    const bgColor = style.backgroundColor;
+                    if (!bgColor || typeof bgColor !== 'string') return;
+                    
+                    // Check for any green-ish color
+                    if (bgColor.includes('rgb(')) {
+                        const parts = bgColor.split(',');
+                        if (parts.length >= 3) {
+                            // Extract RGB values with safer parsing
+                            const r = parseInt(parts[0].replace(/\D/g, '')) || 0;
+                            const g = parseInt(parts[1].replace(/\D/g, '')) || 0;
+                            const b = parseInt(parts[2]) || 0;
+                            
+                            // Check if it's a green-ish color (g > r && g > b)
+                            if ((g > r && g > b) || 
+                                bgColor.includes('rgb(76, 175, 80)') || 
+                                bgColor.includes('rgb(46, 125, 50)') ||
+                                bgColor.includes('rgb(0, 128, 0)') ||
+                                bgColor.includes('rgb(0, 255, 0)')) {
+                                div.style.display = 'none';
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.log('Error processing div background:', err);
+                }
+            });
+        } catch (err) {
+            console.error('Error in hideGreenSections:', err);
         }
-        
-        // Hide any elements with green background at the bottom of the page
-        const allDivs = document.querySelectorAll('div');
-        allDivs.forEach(div => {
-            const style = window.getComputedStyle(div);
-            const bgColor = style.backgroundColor;
-            
-            // Check for any green-ish color
-            if (bgColor.includes('rgb(') && 
-                (bgColor.includes('rgb(76, 175, 80)') || 
-                 bgColor.includes('rgb(46, 125, 50)') ||
-                 bgColor.includes('rgb(0, 128, 0)') ||
-                 bgColor.includes('rgb(0, 255, 0)') ||
-                 (parseInt(bgColor.split(',')[1]) > parseInt(bgColor.split(',')[0]) && 
-                  parseInt(bgColor.split(',')[1]) > parseInt(bgColor.split(',')[2])))) {
-                div.style.display = 'none';
-            }
-        });
     };
     
     // Run initially and after a delay to catch dynamically loaded elements
@@ -5373,4 +5397,96 @@ window.determineRamCompatibility = function(ram, mainboard) {
 
 // Expose the functions globally
 console.log("✅ CPU-Mainboard and RAM compatibility functions exposed globally");
+                        
+// Function to force show configuration tables
+function forceShowConfigTables() {
+    try {
+        console.log('Force showing configuration tables');
+        
+        // List of table IDs and classes to check
+        const tableSelectors = [
+            '#component-table', 
+            '#configuration-table', 
+            '.config-table', 
+            '.component-table',
+            '#config-table',
+            'table'
+        ];
+        
+        // Apply display styles to all matching elements
+        tableSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            console.log(`Found ${elements.length} elements matching ${selector}`);
+            
+            elements.forEach(element => {
+                if (element) {
+                    element.style.display = 'table';
+                    element.style.visibility = 'visible';
+                    element.style.opacity = '1';
+                    
+                    // Also set any parent containers to visible
+                    let parent = element.parentElement;
+                    for (let i = 0; i < 5 && parent; i++) {
+                        parent.style.display = 'block';
+                        parent.style.visibility = 'visible';
+                        parent.style.opacity = '1';
+                        parent = parent.parentElement;
+                    }
+                }
+            });
+        });
+        
+        // Force any config containers to be visible
+        const containerSelectors = [
+            '.table-container', 
+            '.table-responsive', 
+            '.component-selection-container', 
+            '.config-section',
+            '.modal-content',
+            '.modal-body'
+        ];
+        
+        containerSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (element) {
+                    element.style.display = 'block';
+                    element.style.visibility = 'visible';
+                    element.style.opacity = '1';
+                }
+            });
+        });
+        
+        // Simulate click on calculate button if needed
+        const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
+        calculateButtons.forEach(button => {
+            if (button && typeof button.click === 'function') {
+                console.log('Clicking calculate button:', button);
+                try {
+                    button.click();
+                } catch (err) {
+                    console.error('Error clicking calculate button:', err);
+                }
+            }
+        });
+        
+        console.log('Force show configuration tables complete');
+    } catch (err) {
+        console.error('Error in forceShowConfigTables:', err);
+    }
+}
+
+// Add window function for external access
+window.forceShowConfigTables = forceShowConfigTables;
+
+// Run on load
+window.addEventListener('load', function() {
+    setTimeout(forceShowConfigTables, 1000);
+    setTimeout(forceShowConfigTables, 2500); 
+});
+
+// Run on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(forceShowConfigTables, 500);
+});
                         
