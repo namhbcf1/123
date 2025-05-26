@@ -305,6 +305,151 @@
         display: none;
     }
     </style>
+
+    <style>
+    /* Enhanced styling for the three main step sections */
+    .selection-section.accent-section {
+        margin: 40px auto !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+        transform: translateZ(0);
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+
+    .selection-section.accent-section:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .selection-section.accent-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: linear-gradient(90deg, #4CAF50, #2196F3, #9C27B0);
+        z-index: 1;
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d) !important;
+        padding: 25px 20px !important;
+        border-radius: 8px 8px 0 0 !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .section-header h2 {
+        color: white !important;
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+        margin: 0 !important;
+        position: relative !important;
+        z-index: 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .section-header i {
+        font-size: 2.2rem !important;
+        margin-right: 15px !important;
+        color: #ffeb3b !important;
+        text-shadow: 0 0 10px rgba(255, 235, 59, 0.6) !important;
+        animation: pulse 2s infinite !important;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    #budget-range-selection, #cpu-type-selection, #game-selection {
+        background-color: #ffffff !important;
+        border: none !important;
+    }
+
+    .slider-container, .cpu-brand-selection, .game-grid {
+        padding: 30px 20px !important;
+    }
+
+    /* Specific styling for budget range slider */
+    .slider {
+        height: 15px !important;
+        border-radius: 10px !important;
+        background: linear-gradient(90deg, #81c784, #4caf50, #2e7d32) !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .slider::-webkit-slider-thumb {
+        width: 30px !important;
+        height: 30px !important;
+        background: #fff !important;
+        border: 3px solid #4CAF50 !important;
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5) !important;
+    }
+
+    /* Specific styling for CPU selection */
+    .brand-option {
+        transform: translateZ(0);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        border: 3px solid transparent !important;
+        border-radius: 12px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+        padding: 25px 15px !important;
+    }
+
+    .brand-option:hover {
+        transform: translateY(-8px) scale(1.03) !important;
+    }
+
+    /* Specific styling for game selection grid */
+    .game-card {
+        border-radius: 10px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        transition: all 0.4s ease !important;
+        transform: translateZ(0);
+    }
+
+    .game-card:hover {
+        transform: translateY(-5px) scale(1.05) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        z-index: 5 !important;
+    }
+
+    .game-card .game-image {
+        height: 120px !important;
+        position: relative !important;
+    }
+
+    .game-card .game-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 30%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    }
+
+    .game-card .game-name {
+        font-weight: bold !important;
+        padding: 10px !important;
+        background: #f5f5f5 !important;
+    }
+    </style>
 </head>
 
 <body>
@@ -368,7 +513,7 @@
             <section id="budget-range-selection" class="selection-section accent-section">
                 <div class="section-header">
                     <i class="fas fa-money-bill-wave"></i>
-                    <h2>Chọn Cấu Hình Tầm Tiền Mong Muốn</h2>
+                    <h2>BƯỚC 1: Chọn Cấu Hình Tầm Tiền Mong Muốn</h2>
                 </div>
                 <div class="slider-container">
                     <div class="slider-value-container">
@@ -390,7 +535,7 @@
             <section id="cpu-type-selection" class="selection-section accent-section">
                 <div class="section-header">
                     <i class="fas fa-microchip"></i>
-                    <h2>Chọn Loại CPU</h2>
+                    <h2>BƯỚC 2: Chọn Loại CPU</h2>
                 </div>
                 <div class="cpu-brand-selection">
                     <div class="brand-option" id="intel-option" onclick="handleCpuSelection('Intel')">
@@ -555,7 +700,7 @@
             <section id="game-selection" class="selection-section accent-section">
                 <div class="section-header">
                     <i class="fas fa-gamepad"></i>
-                    <h2>Chọn Game Muốn Chơi</h2>
+                    <h2>BƯỚC 3: Chọn Game Muốn Chơi</h2>
                 </div>
                 <div class="game-grid">
                     <div class="game-card" data-game="valorant">
@@ -813,7 +958,7 @@
             
             <!-- Bảng chi tiết cấu hình -->
             <div id="config-table" class="config-table" style="display:none; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
-                <h2 style="text-align: center; color: var(--primary-color); margin: 15px 0; font-size: 24px;"><i class="fas fa-clipboard-list"></i> BẢNG CHI TIẾT CẤU HÌNH MÁY TÍNH</h2>
+                <h2 style="text-align: center; color: var(--primary-color); margin: 15px 0; font-size: 24px;"><i class="fas fa-clipboard-list"></i> TRƯỜNG PHÁT COMPUTER XIN GỬI BẢNG CHI TIẾT CẤU HÌNH MÁY TÍNH</h2>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
                         <tr style="background-color: #2196F3; color: white;">
@@ -2250,86 +2395,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const addShowComponentsButton = function() {
         if (document.getElementById('show-selected-components-btn')) return;
         
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.textAlign = 'center';
-        buttonContainer.style.margin = '20px 0';
-        
-        const button = document.createElement('button');
-        button.id = 'show-selected-components-btn';
-        button.innerHTML = '<i class="fas fa-list"></i> HIỂN THỊ LINH KIỆN ĐÃ CHỌN';
-        button.style.backgroundColor = '#4CAF50';
-        button.style.color = 'white';
-        button.style.border = 'none';
-        button.style.padding = '10px 20px';
-        button.style.borderRadius = '4px';
-        button.style.cursor = 'pointer';
-        button.style.fontWeight = 'bold';
-        
-        button.addEventListener('click', function() {
-            // Show the list of selected components
-            const selectedList = document.getElementById('selected-components-list');
-            if (selectedList) {
-                selectedList.style.display = 'block';
-                
-                // Populate with current selections
-                selectedList.innerHTML = '';
-                const components = ['cpu', 'mainboard', 'vga', 'ram', 'ssd', 'psu', 'case', 'cpuCooler'];
-                
-                components.forEach(function(component) {
-                    const dropdown = document.getElementById(component);
-                    if (dropdown && dropdown.selectedIndex > 0) {
-                        const selectedText = dropdown.options[dropdown.selectedIndex].text;
-                        const selectedItem = document.createElement('div');
-                        selectedItem.className = 'selected-component-item';
-                        selectedItem.style.margin = '10px';
-                        selectedItem.style.padding = '10px';
-                        selectedItem.style.backgroundColor = '#f5f5f5';
-                        selectedItem.style.borderRadius = '5px';
-                        selectedItem.style.display = 'flex';
-                        selectedItem.style.alignItems = 'center';
-                        
-                        const iconClass = component === 'cpuCooler' ? 'fa-wind' : 
-                                         component === 'mainboard' ? 'fa-server' :
-                                         component === 'vga' ? 'fa-tv' :
-                                         component === 'ram' ? 'fa-memory' :
-                                         component === 'ssd' ? 'fa-hdd' :
-                                         component === 'psu' ? 'fa-bolt' :
-                                         component === 'case' ? 'fa-cube' : 'fa-microchip';
-                        
-                        selectedItem.innerHTML = `
-                            <i class="fas ${iconClass}" style="font-size: 24px; color: #0053b4; margin-right: 10px;"></i>
-                            <div style="flex-grow: 1;">${selectedText}</div>
-                        `;
-                        
-                        selectedList.appendChild(selectedItem);
-                    }
-                });
-                
-                // Scroll to the section
-                selectedList.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            // Also show the component selection section
-            const componentSection = document.getElementById('component-selection');
-            if (componentSection) {
-                componentSection.style.display = 'block';
-                componentSection.style.visibility = 'visible';
-                componentSection.style.opacity = '1';
-            }
-        });
-        
-        buttonContainer.appendChild(button);
-        
-        // Find a good place to insert the button
-        const targetSection = document.querySelector('.selection-section') || 
-                             document.querySelector('.container');
-        if (targetSection) {
-            targetSection.parentNode.insertBefore(buttonContainer, targetSection.nextSibling);
-        }
+        // BUTTON REMOVED AS REQUESTED
     };
     
-    // Add the button with a delay to ensure the page is loaded
-    setTimeout(addShowComponentsButton, 2000);
+    // Remove the button adding function
+    // setTimeout(addShowComponentsButton, 2000);
 });
 </script>
 
