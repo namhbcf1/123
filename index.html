@@ -2367,3 +2367,784 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Replace the image tags with Font Awesome icons -->
+<script>
+// Force the component detail modal to display immediately after load
+window.addEventListener('load', function() {
+    // Wait a bit for everything to initialize
+    setTimeout(function() {
+        const modal = document.getElementById('component-detail-modal');
+        if (modal) {
+            console.log('FINAL FIX: Forcing component-detail-modal visible');
+            modal.style.display = 'block';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+            
+            // Replace all images with icons in the modal
+            const imgElements = modal.querySelectorAll('img');
+            imgElements.forEach(function(img) {
+                const iconClass = getIconClassForComponent(img.alt || '');
+                const iconElement = document.createElement('i');
+                iconElement.className = iconClass;
+                iconElement.style.fontSize = '32px';
+                iconElement.style.color = '#0053b4';
+                img.parentNode.replaceChild(iconElement, img);
+            });
+            
+            // Create a backdrop if it doesn't exist
+            if (!document.querySelector('.modal-backdrop')) {
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop';
+                backdrop.style.position = 'fixed';
+                backdrop.style.top = '0';
+                backdrop.style.left = '0';
+                backdrop.style.width = '100%';
+                backdrop.style.height = '100%';
+                backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                backdrop.style.zIndex = '9998';
+                document.body.appendChild(backdrop);
+            }
+            
+            // Find all of the selected components by text
+            updateSelectedComponentsInModal();
+        }
+    }, 1000);
+    
+    // Helper function to get icon class for component type
+    function getIconClassForComponent(type) {
+        type = type.toLowerCase();
+        if (type.includes('cpu')) return 'fas fa-microchip';
+        if (type.includes('mainboard')) return 'fas fa-server';
+        if (type.includes('vga')) return 'fas fa-tv';
+        if (type.includes('ram')) return 'fas fa-memory';
+        if (type.includes('ssd')) return 'fas fa-hdd';
+        if (type.includes('psu')) return 'fas fa-bolt';
+        if (type.includes('case')) return 'fas fa-cube';
+        if (type.includes('cooler')) return 'fas fa-wind';
+        return 'fas fa-desktop';
+    }
+    
+    // Function to update the modal with selected components
+    function updateSelectedComponentsInModal() {
+        // Get selected components from dropdowns
+        const components = {
+            'cpu': document.getElementById('cpu'),
+            'mainboard': document.getElementById('mainboard'),
+            'vga': document.getElementById('vga'),
+            'ram': document.getElementById('ram'),
+            'ssd': document.getElementById('ssd'),
+            'psu': document.getElementById('psu'),
+            'case': document.getElementById('case'),
+            'cooler': document.getElementById('cpuCooler')
+        };
+        
+        // Update modal elements with selected values
+        for (const [key, dropdown] of Object.entries(components)) {
+            if (dropdown && dropdown.selectedIndex > 0) {
+                const selectedText = dropdown.options[dropdown.selectedIndex].text;
+                const price = dropdown.options[dropdown.selectedIndex].dataset.price || '0';
+                
+                // Find the corresponding element in the modal
+                const nameElement = document.getElementById(`modal-${key}-name`) || 
+                                   document.getElementById(`modal-${key.replace('cooler', 'cpuCooler')}-name`);
+                const priceElement = document.getElementById(`modal-${key}-price`) || 
+                                    document.getElementById(`modal-${key.replace('cooler', 'cpuCooler')}-price`);
+                
+                if (nameElement) nameElement.textContent = selectedText.split(' - ')[0];
+                if (priceElement) priceElement.textContent = formatPrice(price) + ' VNĐ';
+            }
+        }
+        
+        // Update total price
+        calculateAndUpdateTotalPrice();
+    }
+    
+    // Helper function to format price
+    function formatPrice(price) {
+        price = String(price).replace(/[^\d]/g, '');
+        return price.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    // Calculate and update total price
+    function calculateAndUpdateTotalPrice() {
+        const priceElements = document.querySelectorAll('[id$="-price"]');
+        let total = 0;
+        
+        priceElements.forEach(function(element) {
+            const priceText = element.textContent || '0';
+            const price = parseInt(priceText.replace(/[^\d]/g, '')) || 0;
+            total += price;
+        });
+        
+        const totalElement = document.getElementById('modal-total-price');
+        if (totalElement) {
+            totalElement.textContent = formatPrice(total) + ' VNĐ';
+        }
+    }
+});
+</script>
+
+<!-- Update modal content to use Font Awesome icons instead of images -->
+<script>
+// Replace all <img> tags in the component-detail-modal with Font Awesome icons
+document.addEventListener('DOMContentLoaded', function() {
+    // Make specific updates to the modal content
+    const updateModalContent = function() {
+        const cpuImageCell = document.querySelector('#component-detail-modal tr:nth-child(1) td:nth-child(2)');
+        if (cpuImageCell) {
+            cpuImageCell.innerHTML = '<i class="fas fa-microchip" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const mainboardImageCell = document.querySelector('#component-detail-modal tr:nth-child(2) td:nth-child(2)');
+        if (mainboardImageCell) {
+            mainboardImageCell.innerHTML = '<i class="fas fa-server" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const vgaImageCell = document.querySelector('#component-detail-modal tr:nth-child(3) td:nth-child(2)');
+        if (vgaImageCell) {
+            vgaImageCell.innerHTML = '<i class="fas fa-tv" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const ramImageCell = document.querySelector('#component-detail-modal tr:nth-child(4) td:nth-child(2)');
+        if (ramImageCell) {
+            ramImageCell.innerHTML = '<i class="fas fa-memory" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const ssdImageCell = document.querySelector('#component-detail-modal tr:nth-child(5) td:nth-child(2)');
+        if (ssdImageCell) {
+            ssdImageCell.innerHTML = '<i class="fas fa-hdd" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const psuImageCell = document.querySelector('#component-detail-modal tr:nth-child(6) td:nth-child(2)');
+        if (psuImageCell) {
+            psuImageCell.innerHTML = '<i class="fas fa-bolt" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const caseImageCell = document.querySelector('#component-detail-modal tr:nth-child(7) td:nth-child(2)');
+        if (caseImageCell) {
+            caseImageCell.innerHTML = '<i class="fas fa-cube" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+        
+        const coolerImageCell = document.querySelector('#component-detail-modal tr:nth-child(8) td:nth-child(2)');
+        if (coolerImageCell) {
+            coolerImageCell.innerHTML = '<i class="fas fa-wind" style="font-size: 32px; color: #0053b4;"></i>';
+        }
+    };
+    
+    // Try to update immediately
+    updateModalContent();
+    
+    // Also try after a delay to ensure the modal is created
+    setTimeout(updateModalContent, 1500);
+    setTimeout(updateModalContent, 3000);
+    
+    // Add a button to show selected components in the main UI
+    const addShowComponentsButton = function() {
+        if (document.getElementById('show-selected-components-btn')) return;
+        
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.textAlign = 'center';
+        buttonContainer.style.margin = '20px 0';
+        
+        const button = document.createElement('button');
+        button.id = 'show-selected-components-btn';
+        button.innerHTML = '<i class="fas fa-list"></i> HIỂN THỊ LINH KIỆN ĐÃ CHỌN';
+        button.style.backgroundColor = '#4CAF50';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.padding = '10px 20px';
+        button.style.borderRadius = '4px';
+        button.style.cursor = 'pointer';
+        button.style.fontWeight = 'bold';
+        
+        button.addEventListener('click', function() {
+            // Show the list of selected components
+            const selectedList = document.getElementById('selected-components-list');
+            if (selectedList) {
+                selectedList.style.display = 'block';
+                
+                // Populate with current selections
+                selectedList.innerHTML = '';
+                const components = ['cpu', 'mainboard', 'vga', 'ram', 'ssd', 'psu', 'case', 'cpuCooler'];
+                
+                components.forEach(function(component) {
+                    const dropdown = document.getElementById(component);
+                    if (dropdown && dropdown.selectedIndex > 0) {
+                        const selectedText = dropdown.options[dropdown.selectedIndex].text;
+                        const selectedItem = document.createElement('div');
+                        selectedItem.className = 'selected-component-item';
+                        selectedItem.style.margin = '10px';
+                        selectedItem.style.padding = '10px';
+                        selectedItem.style.backgroundColor = '#f5f5f5';
+                        selectedItem.style.borderRadius = '5px';
+                        selectedItem.style.display = 'flex';
+                        selectedItem.style.alignItems = 'center';
+                        
+                        const iconClass = component === 'cpuCooler' ? 'fa-wind' : 
+                                         component === 'mainboard' ? 'fa-server' :
+                                         component === 'vga' ? 'fa-tv' :
+                                         component === 'ram' ? 'fa-memory' :
+                                         component === 'ssd' ? 'fa-hdd' :
+                                         component === 'psu' ? 'fa-bolt' :
+                                         component === 'case' ? 'fa-cube' : 'fa-microchip';
+                        
+                        selectedItem.innerHTML = `
+                            <i class="fas ${iconClass}" style="font-size: 24px; color: #0053b4; margin-right: 10px;"></i>
+                            <div style="flex-grow: 1;">${selectedText}</div>
+                        `;
+                        
+                        selectedList.appendChild(selectedItem);
+                    }
+                });
+                
+                // Scroll to the section
+                selectedList.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Also show the component selection section
+            const componentSection = document.getElementById('component-selection');
+            if (componentSection) {
+                componentSection.style.display = 'block';
+                componentSection.style.visibility = 'visible';
+                componentSection.style.opacity = '1';
+            }
+        });
+        
+        buttonContainer.appendChild(button);
+        
+        // Find a good place to insert the button
+        const targetSection = document.querySelector('.selection-section') || 
+                             document.querySelector('.container');
+        if (targetSection) {
+            targetSection.parentNode.insertBefore(buttonContainer, targetSection.nextSibling);
+        }
+    };
+    
+    // Add the button with a delay to ensure the page is loaded
+    setTimeout(addShowComponentsButton, 2000);
+});
+</script>
+
+<!-- Direct fix for component selection section visibility -->
+<style>
+#component-selection, #selected-components, #additional-selection, 
+.selection-section, .component, #selected-components-list {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Force all component dropdowns to be visible */
+.component select {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    padding: 8px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+}
+
+/* Ensure selected components display properly */
+.selected-component-item {
+    display: flex !important;
+    align-items: center !important;
+    margin: 10px 0 !important;
+    padding: 10px !important;
+    background-color: #f5f5f5 !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+</style>
+
+<!-- Add a direct button to show the complete UI -->
+<div style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
+    <button id="show-full-ui-btn" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        HIỆN TẤT CẢ GIAO DIỆN
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add handler for the show full UI button
+    const showFullUiBtn = document.getElementById('show-full-ui-btn');
+    if (showFullUiBtn) {
+        showFullUiBtn.addEventListener('click', function() {
+            // Show all important sections
+            const sections = [
+                'component-selection',
+                'selected-components',
+                'additional-selection',
+                'config-table',
+                'selected-components-list'
+            ];
+            
+            sections.forEach(function(id) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'block';
+                    element.style.visibility = 'visible';
+                    element.style.opacity = '1';
+                    
+                    // Scroll to the element
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            // Show all selection sections
+            document.querySelectorAll('.selection-section').forEach(function(section) {
+                section.style.display = 'block';
+                section.style.visibility = 'visible';
+                section.style.opacity = '1';
+            });
+            
+            // Also force the config detail modal to display
+            if (typeof showComponentDetailModal === 'function') {
+                showComponentDetailModal();
+            }
+        });
+    }
+});
+</script>
+
+<!-- Fix for component images and modal display -->
+<script>
+// Replace all images with Font Awesome icons in the modal
+function replaceImagesWithIcons() {
+    const modal = document.getElementById('component-detail-modal');
+    if (!modal) return;
+    
+    // CPU
+    const cpuCell = modal.querySelector('tr:nth-child(1) td:nth-child(2)');
+    if (cpuCell) cpuCell.innerHTML = '<i class="fas fa-microchip" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // Mainboard
+    const mainboardCell = modal.querySelector('tr:nth-child(2) td:nth-child(2)');
+    if (mainboardCell) mainboardCell.innerHTML = '<i class="fas fa-server" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // VGA
+    const vgaCell = modal.querySelector('tr:nth-child(3) td:nth-child(2)');
+    if (vgaCell) vgaCell.innerHTML = '<i class="fas fa-tv" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // RAM
+    const ramCell = modal.querySelector('tr:nth-child(4) td:nth-child(2)');
+    if (ramCell) ramCell.innerHTML = '<i class="fas fa-memory" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // SSD
+    const ssdCell = modal.querySelector('tr:nth-child(5) td:nth-child(2)');
+    if (ssdCell) ssdCell.innerHTML = '<i class="fas fa-hdd" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // PSU
+    const psuCell = modal.querySelector('tr:nth-child(6) td:nth-child(2)');
+    if (psuCell) psuCell.innerHTML = '<i class="fas fa-bolt" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // Case
+    const caseCell = modal.querySelector('tr:nth-child(7) td:nth-child(2)');
+    if (caseCell) caseCell.innerHTML = '<i class="fas fa-cube" style="font-size: 32px; color: #0053b4;"></i>';
+    
+    // Cooler
+    const coolerCell = modal.querySelector('tr:nth-child(8) td:nth-child(2)');
+    if (coolerCell) coolerCell.innerHTML = '<i class="fas fa-wind" style="font-size: 32px; color: #0053b4;"></i>';
+}
+
+// Force modal to be visible
+function forceModalVisible() {
+    const modal = document.getElementById('component-detail-modal');
+    if (modal) {
+        console.log('Forcing modal to be visible');
+        modal.style.display = 'block !important';
+        modal.style.visibility = 'visible !important';
+        modal.style.opacity = '1 !important';
+        
+        // Replace images with icons
+        replaceImagesWithIcons();
+    }
+}
+
+// Run on page load
+window.addEventListener('load', function() {
+    // Try multiple times to ensure it works
+    setTimeout(forceModalVisible, 1000);
+    setTimeout(forceModalVisible, 2000);
+    setTimeout(forceModalVisible, 3000);
+});
+
+// Run when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Connect all buttons to show the modal
+    document.querySelectorAll('button').forEach(function(button) {
+        const text = button.textContent || button.innerText;
+        if (text.includes('CHI TIẾT') || text.includes('CẤU HÌNH')) {
+            button.addEventListener('click', function() {
+                setTimeout(forceModalVisible, 100);
+            });
+        }
+    });
+});
+</script>
+
+<!-- Styles to force visibility of important elements -->
+<style>
+#component-selection, #additional-selection, 
+.selection-section, .component, #selected-components-list,
+#config-table, .config-table, #selected-components {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#component-detail-modal {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10000 !important;
+}
+
+/* Make all tables visible */
+table {
+    display: table !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+</style>
+
+<!-- Add a script to ensure the component selection section is visible -->
+<script>
+// Force visible all important sections
+function forceVisibleSections() {
+    // List of important section IDs
+    const importantSections = [
+        'component-selection',
+        'additional-selection',
+        'selected-components',
+        'config-table',
+        'total-price'
+    ];
+    
+    // Force each section to be visible
+    importantSections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+            section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+            
+            // Also make all children visible
+            const children = section.querySelectorAll('*');
+            children.forEach(child => {
+                // Don't force display: block on elements that should be flex or table
+                if (child.tagName === 'TABLE') {
+                    child.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
+                } else if (child.classList.contains('flex-container') || 
+                           child.classList.contains('d-flex') ||
+                           child.style.display === 'flex') {
+                    child.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+                } else {
+                    child.style.cssText = 'visibility: visible !important; opacity: 1 !important;';
+                }
+            });
+        }
+    }
+    
+    // Force the component-detail-modal to be visible with correct styling
+    const modal = document.getElementById('component-detail-modal');
+    if (modal) {
+        modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
+        
+        // Find modal content and set its style
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.cssText = 'position: relative !important; background-color: white !important; margin: 30px auto !important; padding: 0 !important; border-radius: 5px !important; max-width: 800px !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
+        }
+        
+        // Add proper close button if it doesn't exist
+        if (!modal.querySelector('.close-button')) {
+            const closeButton = document.createElement('button');
+            closeButton.className = 'close-button';
+            closeButton.innerHTML = '&times;';
+            closeButton.style.cssText = 'position: absolute !important; top: 10px !important; right: 10px !important; font-size: 24px !important; font-weight: bold !important; background: none !important; border: none !important; color: white !important; cursor: pointer !important; z-index: 10001 !important;';
+            
+            closeButton.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            const modalHeader = modal.querySelector('.modal-header');
+            if (modalHeader) {
+                modalHeader.appendChild(closeButton);
+            } else if (modalContent) {
+                modalContent.insertBefore(closeButton, modalContent.firstChild);
+            } else {
+                modal.appendChild(closeButton);
+            }
+        }
+    }
+    
+    // Force all selection-section elements to be visible
+    document.querySelectorAll('.selection-section').forEach(section => {
+        section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+    });
+    
+    // Force all dropdowns to be visible and properly styled
+    document.querySelectorAll('select, .dropdown').forEach(dropdown => {
+        dropdown.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; padding: 8px !important; border: 1px solid #ddd !important; border-radius: 4px !important; background-color: white !important;';
+    });
+    
+    // Replace all missing images with Font Awesome icons
+    document.querySelectorAll('img').forEach(img => {
+        if (!img.complete || img.naturalHeight === 0) {
+            const type = img.alt?.toLowerCase() || '';
+            const iconClass = 
+                type.includes('cpu') ? 'fas fa-microchip' :
+                type.includes('mainboard') ? 'fas fa-server' :
+                type.includes('vga') ? 'fas fa-tv' :
+                type.includes('ram') ? 'fas fa-memory' :
+                type.includes('ssd') || type.includes('hdd') ? 'fas fa-hdd' :
+                type.includes('psu') ? 'fas fa-bolt' :
+                type.includes('case') ? 'fas fa-cube' :
+                type.includes('cooler') ? 'fas fa-wind' :
+                'fas fa-desktop';
+            
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            icon.style.cssText = 'font-size: 32px !important; color: #0053b4 !important;';
+            
+            if (img.parentNode) {
+                img.parentNode.replaceChild(icon, img);
+            }
+        }
+    });
+}
+
+// Run immediately when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Run multiple times to ensure it works
+    forceVisibleSections();
+    setTimeout(forceVisibleSections, 1000);
+    setTimeout(forceVisibleSections, 2000);
+    setTimeout(forceVisibleSections, 3000);
+    
+    // Add a permanent button to force sections visible
+    const forceVisibleButton = document.createElement('button');
+    forceVisibleButton.innerHTML = 'HIỆN TẤT CẢ PHẦN';
+    forceVisibleButton.style.cssText = 'position: fixed !important; bottom: 80px !important; right: 20px !important; background-color: #e53935 !important; color: white !important; border: none !important; padding: 10px 15px !important; font-size: 14px !important; font-weight: bold !important; border-radius: 4px !important; cursor: pointer !important; box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important; z-index: 9999 !important;';
+    
+    forceVisibleButton.addEventListener('click', forceVisibleSections);
+    document.body.appendChild(forceVisibleButton);
+});
+
+// Also run on window load
+window.addEventListener('load', function() {
+    forceVisibleSections();
+    setTimeout(forceVisibleSections, 1000);
+});
+</script>
+
+<!-- Additional CSS to ensure visibility -->
+<style>
+/* Force visibility for config table and selection sections */
+#config-table, .config-table, 
+#component-selection, #selected-components, 
+#additional-selection, .selection-section,
+.component, #selected-components-list,
+#total-price {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Force all tables to display properly */
+table {
+    display: table !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+tr {
+    display: table-row !important;
+    visibility: visible !important;
+}
+
+td, th {
+    display: table-cell !important;
+    visibility: visible !important;
+    padding: 8px !important;
+    border: 1px solid #ddd !important;
+}
+
+/* Style modal correctly */
+#component-detail-modal {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0,0,0,0.5) !important;
+    z-index: 10000 !important;
+    overflow-y: auto !important;
+}
+
+.modal-dialog {
+    margin: 30px auto !important;
+    max-width: 800px !important;
+    background: white !important;
+    border-radius: 5px !important;
+    overflow: hidden !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;
+}
+
+.modal-content {
+    position: relative !important;
+}
+
+.modal-header {
+    background-color: #2196F3 !important;
+    color: white !important;
+    padding: 15px !important;
+    position: relative !important;
+}
+
+.modal-body {
+    padding: 0 !important;
+}
+
+/* Style for buttons */
+button {
+    cursor: pointer !important;
+}
+
+/* Hide preloaders and placeholders */
+.preloader, .placeholder, .loading-overlay {
+    display: none !important;
+}
+</style>
+
+<!-- Fix for component images in config table -->
+<script>
+// Replace all images in config table with Font Awesome icons
+document.addEventListener('DOMContentLoaded', function() {
+    // Image cells in the config table
+    var imageCells = {
+        'cpu-image': 'fa-microchip',
+        'mainboard-image': 'fa-server',
+        'vga-image': 'fa-tv',
+        'ram-image': 'fa-memory',
+        'ssd-image': 'fa-hdd',
+        'cpu-cooler-image': 'fa-wind',
+        'psu-image': 'fa-bolt',
+        'case-image': 'fa-cube',
+        'hdd-image': 'fa-hdd',
+        'monitor-image': 'fa-desktop'
+    };
+    
+    // Replace each image cell with an icon
+    Object.entries(imageCells).forEach(([cellId, iconClass]) => {
+        const cell = document.getElementById(cellId);
+        if (cell) {
+            cell.innerHTML = `<i class="fas ${iconClass}" style="font-size: 32px; color: #0053b4;"></i>`;
+        }
+    });
+});
+</script>
+
+<!-- Final script to force show configuration details -->
+<script>
+// Final force show configuration details
+window.addEventListener('load', function() {
+    // Create a force show button at the very top
+    const forceShowButton = document.createElement('button');
+    forceShowButton.innerHTML = '<i class="fas fa-table"></i> HIỆN BẢNG CẤU HÌNH NGAY';
+    forceShowButton.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #e53935; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 10000;';
+    
+    forceShowButton.addEventListener('click', function() {
+        // Remove self on click
+        this.remove();
+        
+        // Force show all important elements
+        forceVisibleSections();
+        
+        // Force replace all images with icons
+        document.querySelectorAll('img').forEach(img => {
+            const type = img.alt ? img.alt.toLowerCase() : '';
+            const iconClass = 
+                type.includes('cpu') ? 'fas fa-microchip' :
+                type.includes('mainboard') ? 'fas fa-server' :
+                type.includes('vga') ? 'fas fa-tv' :
+                type.includes('ram') ? 'fas fa-memory' :
+                type.includes('ssd') || type.includes('hdd') ? 'fas fa-hdd' :
+                type.includes('psu') ? 'fas fa-bolt' :
+                type.includes('case') ? 'fas fa-cube' :
+                type.includes('cooler') ? 'fas fa-wind' :
+                'fas fa-desktop';
+            
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            icon.style.cssText = 'font-size: 32px; color: #0053b4;';
+            
+            if (img.parentNode) {
+                img.parentNode.replaceChild(icon, img);
+            }
+        });
+        
+        // Force component-detail-modal to be visible
+        const modal = document.getElementById('component-detail-modal');
+        if (modal) {
+            modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
+            
+            // Find modal dialog and set its style
+            const modalDialog = modal.querySelector('.modal-dialog');
+            if (modalDialog) {
+                modalDialog.style.cssText = 'margin: 30px auto !important; max-width: 800px !important; background: white !important; border-radius: 5px !important; overflow: hidden !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
+            }
+            
+            // Find modal content and set its style
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.cssText = 'position: relative !important; background-color: white !important; border-radius: 5px !important;';
+            }
+        }
+        
+        // Highlight and scroll to the config table
+        const configTable = document.getElementById('config-table');
+        if (configTable) {
+            configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important; box-shadow: 0 0 20px rgba(76, 175, 80, 0.7) !important; border: 3px solid #4CAF50 !important;';
+            configTable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Execute any modal show functions that might exist
+        if (typeof showComponentDetailModal === 'function') {
+            showComponentDetailModal();
+        }
+        
+        // Also try to execute any other known function for showing tables
+        const possibleFunctions = [
+            'showConfigDetailModal',
+            'forceShowComponentTable',
+            'calculateTotalPriceAndSummary',
+            'showAllConfigTables',
+            'showConfigDetail'
+        ];
+        
+        possibleFunctions.forEach(funcName => {
+            if (typeof window[funcName] === 'function') {
+                try {
+                    window[funcName]();
+                } catch (e) {
+                    console.error(`Error executing ${funcName}:`, e);
+                }
+            }
+        });
+    });
+    
+    // Add to document
+    document.body.appendChild(forceShowButton);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        forceShowButton.click();
+    }, 5000);
+});
+</script>

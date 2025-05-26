@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tpc-builder-cache-v2';
+const CACHE_NAME = 'pc-builder-cache-v1';
 const STATIC_CACHE = 'tpc-static-cache-v2';
 const DYNAMIC_CACHE = 'tpc-dynamic-cache-v2';
 
@@ -15,7 +15,8 @@ const STATIC_ASSETS = [
   './component-connector.js',
   './manifest.json',
   './images/icon-192.png',
-  './images/icon-512.png'
+  './images/icon-512.png',
+  './components-data.js'
 ];
 
 // Danh sách domain cần cache
@@ -28,16 +29,29 @@ const CACHE_DOMAINS = [
   'unpkg.com'
 ];
 
+// Function to safely add items to cache - ignores failures
+const safeCacheAdd = async (cache, url) => {
+  try {
+    await cache.add(url);
+    console.log(`Successfully cached: ${url}`);
+  } catch (error) {
+    console.log(`Failed to cache: ${url} - ${error.message}`);
+    // Continue despite error
+  }
+};
+
 // Cài đặt service worker
 self.addEventListener('install', event => {
   event.waitUntil(
-    // Cache tất cả tài nguyên tĩnh
-    caches.open(STATIC_CACHE)
+    caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        // Use Promise.all with safeCacheAdd to handle errors gracefully
+        return Promise.all(STATIC_ASSETS.map(url => safeCacheAdd(cache, url)));
       })
-      .then(() => self.skipWaiting())
+      .catch(error => {
+        console.error('Error during service worker install:', error);
+      })
   );
 });
 
@@ -45,11 +59,36 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // Xử lý yêu cầu API khác nhau so với tài nguyên tĩnh
-  if (event.request.method !== 'GET') {
+  // Skip cross-origin requests
+  if (!url.origin.startsWith(self.location.origin)) {
     return;
   }
-
+  
+  // Handle images specially - provide fallback
+  if (url.pathname.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          // Return the cached response if we have it
+          if (response) {
+            return response;
+          }
+          
+          // Otherwise try to fetch from network
+          return fetch(event.request).catch(() => {
+            // If both cache and network fail, return a placeholder or transparent image
+            return new Response(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="20" text-anchor="middle" fill="#999">Image</text></svg>',
+              { 
+                headers: { 'Content-Type': 'image/svg+xml' } 
+              }
+            );
+          });
+        })
+    );
+    return;
+  }
+  
   // Kiểm tra xem URL có phải là tài nguyên tĩnh cần cache không
   const isStaticAsset = STATIC_ASSETS.some(asset => {
     // Chuyển đổi địa chỉ tương đối thành đường dẫn
@@ -70,25 +109,19 @@ self.addEventListener('fetch', event => {
 
 // Kích hoạt service worker và xóa cache cũ
 self.addEventListener('activate', event => {
-  const currentCaches = [STATIC_CACHE, DYNAMIC_CACHE];
-  
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return cacheNames.filter(
-          cacheName => !currentCaches.includes(cacheName)
-        );
-      })
-      .then(cachesToDelete => {
-        return Promise.all(
-          cachesToDelete.map(cacheToDelete => {
-            console.log('Deleting old cache:', cacheToDelete);
-            return caches.delete(cacheToDelete);
-          })
-        );
-      })
-      .then(() => self.clients.claim())
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
+  return self.clients.claim();
 });
 
 // Chiến lược cache-first (ưu tiên cache)
