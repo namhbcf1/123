@@ -939,7 +939,7 @@
             </div>
             
             <!-- Bảng chi tiết cấu hình -->
-            <div id="config-table" class="config-table" style="display:block; visibility:visible; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
+            <div id="config-table" class="config-table force-visible" style="display:table !important; visibility:visible !important; opacity:1 !important; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
                 <h2 style="text-align: center; color: var(--primary-color); margin: 15px 0; font-size: 24px;"><i class="fas fa-clipboard-list"></i> BẢNG CHI TIẾT CẤU HÌNH MÁY TÍNH</h2>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
@@ -1527,6 +1527,182 @@
                 };
             }
         });
+    </script>
+
+    <!-- Emergency config table fix - add near the top of the body -->
+    <script>
+    // IMMEDIATELY force config table visible
+    (function() {
+        // Direct DOM manipulation for config table
+        function forceConfigTableVisible() {
+            // Target the specific table with ID config-table
+            const configTable = document.querySelector('#config-table, .config-table');
+            if (configTable) {
+                // Force display with aggressive !important style
+                configTable.setAttribute('style', 'display: table !important; visibility: visible !important; opacity: 1 !important;');
+                
+                // Also add a class that we can target with CSS
+                configTable.classList.add('force-visible');
+                
+                // Make all parent elements visible
+                let parent = configTable.parentElement;
+                while (parent) {
+                    parent.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important;');
+                    parent = parent.parentElement;
+                }
+                
+                console.log('EMERGENCY: Forced config table visible');
+            }
+        }
+
+        // Run immediately
+        forceConfigTableVisible();
+        
+        // Also run after a small delay
+        setTimeout(forceConfigTableVisible, 100);
+        setTimeout(forceConfigTableVisible, 500);
+        setTimeout(forceConfigTableVisible, 1000);
+        
+        // Also run continuously every 500ms
+        setInterval(forceConfigTableVisible, 500);
+        
+        // Add a direct CSS rule
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #config-table, .config-table, .force-visible, 
+            table[id="config-table"], table[class*="config-table"],
+            div > table, .container > table {
+                display: table !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Also try direct element replacement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to find the hidden table
+            const hiddenTable = document.querySelector('#config-table, .config-table');
+            if (hiddenTable && window.getComputedStyle(hiddenTable).display === 'none') {
+                // Create a clone with forced visibility
+                const clone = hiddenTable.cloneNode(true);
+                clone.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
+                
+                // Replace the original
+                if (hiddenTable.parentNode) {
+                    hiddenTable.parentNode.replaceChild(clone, hiddenTable);
+                    console.log('EMERGENCY: Replaced hidden table with visible clone');
+                }
+            }
+        });
+    })();
+    </script>
+
+    <!-- Add a custom show button at the very top for config table -->
+    <div style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 9999;">
+        <button id="emergency-show-config" style="background-color: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+            HIỆN BẢNG CẤU HÌNH
+        </button>
+    </div>
+
+    <script>
+    // Emergency show config button handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const emergencyButton = document.getElementById('emergency-show-config');
+        if (emergencyButton) {
+            emergencyButton.addEventListener('click', function() {
+                // Aggressive approach to find and show config table
+                const configTables = document.querySelectorAll('table');
+                configTables.forEach(function(table) {
+                    // Make all tables visible as a last resort
+                    table.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
+                    
+                    // Force all parent elements visible
+                    let parent = table.parentElement;
+                    while (parent) {
+                        parent.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                        parent = parent.parentElement;
+                    }
+                });
+                
+                // Also try to force config table container visible
+                const configContainer = document.querySelector('.config-table-container, .config-section, .config-container');
+                if (configContainer) {
+                    configContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                }
+                
+                // Try to call all known show functions
+                if (typeof window.showConfigDetailModal === 'function') window.showConfigDetailModal();
+                if (typeof window.forceShowComponentTable === 'function') window.forceShowComponentTable();
+                if (typeof window.forceShowConfigTables === 'function') window.forceShowConfigTables();
+                if (typeof window.fixConfigTableDisplay === 'function') window.fixConfigTableDisplay();
+                
+                // Try to force the detailed config modal visible
+                const detailModal = document.getElementById('component-detail-modal');
+                if (detailModal) {
+                    detailModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                    
+                    // Show all tables inside it
+                    const modalTables = detailModal.querySelectorAll('table');
+                    modalTables.forEach(function(table) {
+                        table.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
+                    });
+                }
+                
+                console.log('EMERGENCY: Forced all tables visible');
+            });
+        }
+    });
+    </script>
+
+    <!-- Script to automatically show modals on page load -->
+    <script>
+    // Force display of component-detail-modal
+    window.addEventListener('load', function() {
+        // First try the regular ways
+        if (typeof window.showConfigDetailModal === 'function') {
+            console.log('Calling showConfigDetailModal automatically');
+            window.showConfigDetailModal();
+        }
+        
+        // Then force direct visibility for modal
+        setTimeout(function() {
+            const modal = document.getElementById('component-detail-modal');
+            if (modal) {
+                console.log('Forcing component-detail-modal visible');
+                modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+                modal.classList.add('show');
+                modal.classList.add('in');
+                
+                // Make backdrop visible too
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (!backdrop) {
+                    // Create a backdrop if it doesn't exist
+                    const newBackdrop = document.createElement('div');
+                    newBackdrop.className = 'modal-backdrop fade in';
+                    newBackdrop.style.cssText = 'display: block !important; opacity: 0.5 !important;';
+                    document.body.appendChild(newBackdrop);
+                }
+                
+                // Show all tables inside the modal
+                const tables = modal.querySelectorAll('table');
+                tables.forEach(function(table) {
+                    table.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
+                });
+            }
+        }, 1500); // Wait for 1.5 seconds after load
+        
+        // Also try to make the summary modal visible
+        setTimeout(function() {
+            const summaryModal = document.getElementById('summary-modal');
+            if (summaryModal) {
+                console.log('Forcing summary-modal visible');
+                summaryModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+            }
+        }, 2000); // Wait for 2 seconds after load
+    });
     </script>
 </body>
 
