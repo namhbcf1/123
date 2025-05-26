@@ -3464,9 +3464,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Hiển thị modal chi tiết cấu hình
     function showConfigDetailModal(configData) {
-        // Modal display is now enabled
+        // Tìm các phần tử cần thiết
         const modal = document.querySelector('.modal');
         const modalContent = modal ? modal.querySelector('.modal-content') : null;
+        const modalComponentsList = document.getElementById('modal-components-list');
         
         if (!modal || !modalContent) {
             console.error('Modal elements not found');
@@ -3480,7 +3481,136 @@ document.addEventListener('DOMContentLoaded', function () {
         const configTable = document.getElementById('config-table');
         if (configTable) {
             configTable.style.display = 'block';
+            configTable.style.visibility = 'visible';
         }
+        
+        // Populate modal components list if it exists
+        if (modalComponentsList) {
+            // Get selected components
+            const cpu = document.getElementById('cpu');
+            const mainboard = document.getElementById('mainboard');
+            const vga = document.getElementById('vga');
+            const ram = document.getElementById('ram');
+            const ssd = document.getElementById('ssd');
+            const cpuCooler = document.getElementById('cpuCooler');
+            const psu = document.getElementById('psu');
+            const caseComponent = document.getElementById('case');
+            
+            // Build HTML for modal components list
+            let componentsHtml = '<table class="config-detail-table" style="width:100%; border-collapse: collapse;">';
+            componentsHtml += `
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>HÌNH ẢNH</th>
+                        <th>TÊN, MÃ, LOẠI LINH KIỆN</th>
+                        <th>ĐVT</th>
+                        <th>SỐ LƯỢNG</th>
+                        <th>ĐƠN GIÁ</th>
+                        <th>THÀNH TIỀN</th>
+                        <th>BẢO HÀNH</th>
+                        <th>GHI CHÚ</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            // Add components
+            let totalPrice = 0;
+            let index = 1;
+            
+            // CPU
+            if (cpu && cpu.value && window.cpuData && window.cpuData[cpu.value]) {
+                const cpuInfo = window.cpuData[cpu.value];
+                componentsHtml += addComponentRow(index++, 'CPU', cpuInfo.name, cpuInfo.price, cpuInfo.image || 'image/cpu.png');
+                totalPrice += cpuInfo.price;
+            }
+            
+            // Mainboard
+            if (mainboard && mainboard.value && window.mainboardData && window.mainboardData[mainboard.value]) {
+                const mbInfo = window.mainboardData[mainboard.value];
+                componentsHtml += addComponentRow(index++, 'Mainboard', mbInfo.name, mbInfo.price, mbInfo.image || 'image/mainboard.png');
+                totalPrice += mbInfo.price;
+            }
+            
+            // VGA
+            if (vga && vga.value && window.vgaData && window.vgaData[vga.value]) {
+                const vgaInfo = window.vgaData[vga.value];
+                componentsHtml += addComponentRow(index++, 'VGA', vgaInfo.name, vgaInfo.price, vgaInfo.image || 'image/vga.png');
+                totalPrice += vgaInfo.price;
+            }
+            
+            // RAM
+            if (ram && ram.value && window.ramData && window.ramData[ram.value]) {
+                const ramInfo = window.ramData[ram.value];
+                componentsHtml += addComponentRow(index++, 'RAM', ramInfo.name, ramInfo.price, ramInfo.image || 'image/ram.png');
+                totalPrice += ramInfo.price;
+            }
+            
+            // SSD
+            if (ssd && ssd.value && window.ssdData && window.ssdData[ssd.value]) {
+                const ssdInfo = window.ssdData[ssd.value];
+                componentsHtml += addComponentRow(index++, 'SSD', ssdInfo.name, ssdInfo.price, ssdInfo.image || 'image/ssd.png');
+                totalPrice += ssdInfo.price;
+            }
+            
+            // CPU Cooler
+            if (cpuCooler && cpuCooler.value && window.cpuCoolerData && window.cpuCoolerData[cpuCooler.value]) {
+                const coolerInfo = window.cpuCoolerData[cpuCooler.value];
+                componentsHtml += addComponentRow(index++, 'Tản nhiệt CPU', coolerInfo.name, coolerInfo.price, coolerInfo.image || 'image/cpu-cooler.png');
+                totalPrice += coolerInfo.price;
+            }
+            
+            // PSU
+            if (psu && psu.value && window.psuData && window.psuData[psu.value]) {
+                const psuInfo = window.psuData[psu.value];
+                componentsHtml += addComponentRow(index++, 'Nguồn', psuInfo.name, psuInfo.price, psuInfo.image || 'image/psu.png');
+                totalPrice += psuInfo.price;
+            }
+            
+            // Case
+            if (caseComponent && caseComponent.value && window.caseData && window.caseData[caseComponent.value]) {
+                const caseInfo = window.caseData[caseComponent.value];
+                componentsHtml += addComponentRow(index++, 'Case', caseInfo.name, caseInfo.price, caseInfo.image || 'image/case.png');
+                totalPrice += caseInfo.price;
+            }
+            
+            // Total row
+            componentsHtml += `
+                <tr class="total-row">
+                    <td colspan="5" style="text-align: right; padding: 10px;"><strong>Tổng cộng</strong></td>
+                    <td colspan="4" style="text-align: right; padding: 10px; color: red; font-weight: bold;">${formatPrice(totalPrice)} VNĐ</td>
+                </tr>
+            `;
+            
+            componentsHtml += '</tbody></table>';
+            
+            // Update the modal components list
+            modalComponentsList.innerHTML = componentsHtml;
+            
+            // Update the total price in the modal
+            const modalTotalPrice = document.getElementById('modal-total-price');
+            if (modalTotalPrice) {
+                modalTotalPrice.textContent = `Tổng cộng: ${formatPrice(totalPrice)} VNĐ`;
+            }
+        }
+    }
+    
+    // Helper function to add a component row to the modal table
+    function addComponentRow(index, type, name, price, image) {
+        return `
+            <tr>
+                <td style="text-align: center;">${index}</td>
+                <td style="text-align: center;"><img src="${image}" alt="${type}" style="width:60px; height:60px; object-fit:contain;"></td>
+                <td>${name}</td>
+                <td style="text-align: center;">Chiếc</td>
+                <td style="text-align: center;">1</td>
+                <td style="text-align: right;">${formatPrice(price)}</td>
+                <td style="text-align: right;">${formatPrice(price)}</td>
+                <td style="text-align: center;">36T</td>
+                <td style="text-align: center;">NEW</td>
+            </tr>
+        `;
     }
 
     // Đảm bảo window.showConfigDetailModal luôn tham chiếu đến hàm mới nhất
@@ -4211,15 +4341,72 @@ window.enhancedCheckSocketCompatibility = function(cpuKey, mainboardKey) {
 
 // Force show component table when user has selected components
 function forceShowComponentTable() {
-    // Now enabled to show the configuration table
+    // Now enabled to show both configuration tables
+    
+    // 1. Show the main config table
     const configTable = document.getElementById('config-table');
     if (configTable) {
         configTable.style.display = 'block';
+        configTable.style.visibility = 'visible';
+        
+        // Highlight the table with animation to draw attention
+        configTable.animate([
+            { boxShadow: '0 0 0 4px rgba(33, 150, 243, 0.5)' },
+            { boxShadow: '0 0 20px 0px rgba(33, 150, 243, 0.7)' },
+            { boxShadow: '0 0 0 4px rgba(33, 150, 243, 0.5)' }
+        ], {
+            duration: 1500,
+            easing: 'ease-in-out',
+            iterations: 2
+        });
+        
+        // Scroll to the table
+        setTimeout(() => {
+            configTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
     }
     
-    // Also try to show the modal with detail configuration
+    // 2. Make sure the selected components section is visible
+    const selectedComponentsSection = document.getElementById('selected-components');
+    if (selectedComponentsSection) {
+        selectedComponentsSection.style.display = 'block';
+        selectedComponentsSection.style.visibility = 'visible';
+    }
+    
+    // 3. Show the modal with detailed configuration
+    const modal = document.getElementById('summary-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+    
+    // 4. Call the showConfigDetailModal function to update contents
     if (typeof window.showConfigDetailModal === 'function') {
         window.showConfigDetailModal();
+    }
+    
+    // 5. Update the configuration data in the main table
+    if (typeof window.updateComponentTable === 'function') {
+        const cpu = document.getElementById('cpu');
+        const mainboard = document.getElementById('mainboard');
+        const vga = document.getElementById('vga');
+        const ram = document.getElementById('ram');
+        const ssd = document.getElementById('ssd');
+        const psu = document.getElementById('psu');
+        const caseElement = document.getElementById('case');
+        const cpuCooler = document.getElementById('cpuCooler');
+        
+        // Get selected values
+        const cpuValue = cpu ? cpu.value : '';
+        const mbValue = mainboard ? mainboard.value : '';
+        const vgaValue = vga ? vga.value : '';
+        const ramValue = ram ? ram.value : '';
+        const ssdValue = ssd ? ssd.value : '';
+        const psuValue = psu ? psu.value : '';
+        const caseValue = caseElement ? caseElement.value : '';
+        const cpuCoolerValue = cpuCooler ? cpuCooler.value : '';
+        
+        // Update component table
+        window.updateComponentTable(cpuValue, mbValue, vgaValue, ramValue, ssdValue, psuValue, caseValue, cpuCoolerValue);
     }
 }
 
@@ -4318,7 +4505,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const calculateButton = document.getElementById('calculate-button');
     if (calculateButton) {
         calculateButton.addEventListener('click', function() {
-            console.log('Calculate button clicked, showing configuration table');
+            console.log('Calculate button clicked, showing configuration tables');
             
             // Reset trạng thái đóng bảng vì đây là hành động rõ ràng của người dùng
             window.userClosedConfigModal = false;
@@ -4330,13 +4517,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     calculateTotalPriceAndSummary();
                 }
                 
-                // Hiển thị bảng chi tiết
-                if (typeof window.showConfigDetailModal === 'function') {
-                    window.showConfigDetailModal();
+                // Show both config tables using forceShowComponentTable
+                if (typeof forceShowComponentTable === 'function') {
+                    forceShowComponentTable();
+                } else {
+                    // Fallback if forceShowComponentTable isn't available
+                    // 1. Show main config table
+                    const configTable = document.getElementById('config-table');
+                    if (configTable) {
+                        configTable.style.display = 'block';
+                        configTable.style.visibility = 'visible';
+                        configTable.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    
+                    // 2. Show selected components section
+                    const selectedComponentsSection = document.getElementById('selected-components');
+                    if (selectedComponentsSection) {
+                        selectedComponentsSection.style.display = 'block';
+                        selectedComponentsSection.style.visibility = 'visible';
+                    }
+                    
+                    // 3. Show detailed configuration modal
+                    if (typeof window.showConfigDetailModal === 'function') {
+                        window.showConfigDetailModal();
+                    } else {
+                        // Direct fallback if showConfigDetailModal isn't available
+                        const summaryModal = document.getElementById('summary-modal');
+                        if (summaryModal) {
+                            summaryModal.style.display = 'block';
+                        }
+                    }
                 }
             }, 300);
         });
-        console.log('Added listener to calculate button for showing config table');
+        console.log('Added enhanced listener to calculate button for showing all config tables');
     }
     
     // Đảm bảo nút hiển thị bảng cấu hình chi tiết luôn được thêm vào

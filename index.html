@@ -1024,6 +1024,13 @@
                 </div>
             </section>
 
+            <!-- New button to show configuration tables -->
+            <div style="text-align: center; margin: 20px 0;">
+                <button id="show-all-config-tables" style="background-color: #2196F3; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    <i class="fas fa-table"></i> HIỂN THỊ BẢNG CẤU HÌNH CHI TIẾT
+                </button>
+            </div>
+
             <div class="button-group">
                 <button type="button" class="action-button secondary-btn" id="reset-button">
                     <i class="fas fa-redo"></i> Làm mới
@@ -1558,6 +1565,41 @@
             };
         }
     });
+    </script>
+
+    <script src="./service-worker.js"></script>
+    <script src="./component-compatibility.js"></script>
+    
+    <!-- Script to handle the show all config tables button -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showAllConfigTablesButton = document.getElementById('show-all-config-tables');
+            if (showAllConfigTablesButton) {
+                showAllConfigTablesButton.addEventListener('click', function() {
+                    console.log('Show all config tables button clicked');
+                    
+                    // Force show both configuration tables
+                    if (typeof window.forceShowComponentTable === 'function') {
+                        window.forceShowComponentTable();
+                    } else {
+                        // Fallback if the function isn't available
+                        // Show main config table
+                        const configTable = document.getElementById('config-table');
+                        if (configTable) {
+                            configTable.style.display = 'block';
+                            configTable.style.visibility = 'visible';
+                            configTable.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        
+                        // Show the modal with detailed configuration
+                        const modal = document.getElementById('summary-modal');
+                        if (modal) {
+                            modal.style.display = 'block';
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
