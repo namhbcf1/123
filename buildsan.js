@@ -1721,178 +1721,140 @@ document.addEventListener('DOMContentLoaded', function () {
         return { total, selectedComponentsDetails }; // Trả về object chứa cả tổng tiền và danh sách chi tiết
     }
 
+    // Calculate total price and update summary
     function calculateTotalPriceAndSummary() {
-        // Tìm modal elements
-        const summaryModal = document.getElementById('summary-modal');
-        const modalSummaryContent = document.getElementById('modal-components-list');
-        const modalTotalPriceDisplay = document.getElementById('modal-total-price');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
+        // Get all the selected components
+        const cpu = document.getElementById('cpu');
+        const mainboard = document.getElementById('mainboard');
+        const vga = document.getElementById('vga');
+        const ram = document.getElementById('ram');
+        const ssd = document.getElementById('ssd');
+        const psu = document.getElementById('psu');
+        const caseElement = document.getElementById('case');
+        const cpuCooler = document.getElementById('cpuCooler');
+        const hdd = document.getElementById('hdd');
+        const monitor = document.getElementById('monitor');
         
-        if (!summaryModal || !modalSummaryContent || !modalTotalPriceDisplay || !imagePreviewContainer) {
-            console.error("Missing modal elements:", {
-                summaryModal: !!summaryModal,
-                modalSummaryContent: !!modalSummaryContent,
-                modalTotalPriceDisplay: !!modalTotalPriceDisplay,
-                imagePreviewContainer: !!imagePreviewContainer
-            });
+        // Variables to store prices and score
+        let totalPrice = 0;
+        let cpuScore = 0;
+        let vgaScore = 0;
+        let ramScore = 0;
+        let ssdScore = 0;
+        
+        // Calculate CPU price and score
+        if (cpu && cpu.value && window.cpuData && window.cpuData[cpu.value]) {
+            totalPrice += window.cpuData[cpu.value].price || 0;
+            cpuScore = window.cpuData[cpu.value].score || 1;
+        }
+        
+        // Calculate Mainboard price
+        if (mainboard && mainboard.value && window.mainboardData && window.mainboardData[mainboard.value]) {
+            totalPrice += window.mainboardData[mainboard.value].price || 0;
+        }
+        
+        // Calculate VGA price and score
+        if (vga && vga.value && window.vgaData && window.vgaData[vga.value]) {
+            totalPrice += window.vgaData[vga.value].price || 0;
+            vgaScore = window.vgaData[vga.value].score || 1;
+        }
+        
+        // Calculate RAM price and score
+        if (ram && ram.value && window.ramData && window.ramData[ram.value]) {
+            totalPrice += window.ramData[ram.value].price || 0;
+            ramScore = window.ramData[ram.value].score || 1;
+        }
+        
+        // Calculate SSD price and score
+        if (ssd && ssd.value && window.ssdData && window.ssdData[ssd.value]) {
+            totalPrice += window.ssdData[ssd.value].price || 0;
+            ssdScore = window.ssdData[ssd.value].score || 1;
+        }
+        
+        // Calculate PSU price
+        if (psu && psu.value && window.psuData && window.psuData[psu.value]) {
+            totalPrice += window.psuData[psu.value].price || 0;
+        }
+        
+        // Calculate Case price
+        if (caseElement && caseElement.value && window.caseData && window.caseData[caseElement.value]) {
+            totalPrice += window.caseData[caseElement.value].price || 0;
+        }
+        
+        // Calculate CPU Cooler price
+        if (cpuCooler && cpuCooler.value && window.cpuCoolerData && window.cpuCoolerData[cpuCooler.value]) {
+            totalPrice += window.cpuCoolerData[cpuCooler.value].price || 0;
+        }
+        
+        // Calculate HDD price (optional)
+        if (hdd && hdd.value && window.hddData && window.hddData[hdd.value]) {
+            totalPrice += window.hddData[hdd.value].price || 0;
+        }
+        
+        // Calculate Monitor price (optional)
+        if (monitor && monitor.value && window.monitorData && window.monitorData[monitor.value]) {
+            totalPrice += window.monitorData[monitor.value].price || 0;
+        }
+        
+        // Update the total price display
+        const totalPriceElement = document.querySelector('#total-price p');
+        if (totalPriceElement) {
+            totalPriceElement.textContent = formatPrice(totalPrice) + ' VNĐ';
+        }
+        
+        // Update component table
+        if (typeof updateComponentTable === 'function') {
+            updateComponentTable(
+                cpu ? cpu.value : '', 
+                mainboard ? mainboard.value : '', 
+                vga ? vga.value : '', 
+                ram ? ram.value : '', 
+                ssd ? ssd.value : '', 
+                psu ? psu.value : '', 
+                caseElement ? caseElement.value : '', 
+                cpuCooler ? cpuCooler.value : ''
+            );
+        }
+        
+        // Update performance metrics
+        if (typeof showPerformanceMetrics === 'function') {
+            showPerformanceMetrics(
+                cpu ? cpu.value : '', 
+                vga ? vga.value : '', 
+                ramScore, 
+                ssdScore
+            );
+        }
+        
+        // Show upgrade recommendations
+        if (typeof showUpgradeRecommendations === 'function') {
+            showUpgradeRecommendations(cpuScore, vgaScore, ramScore, ssdScore);
+        }
+        
+        // Update the summary modal
+        if (typeof showConfigDetailModal === 'function') {
+            showConfigDetailModal();
+        }
+        
+        // Show both tables
+        if (typeof forceShowComponentTable === 'function') {
+            forceShowComponentTable();
+        } else {
+            // Show the component table
+            const configTable = document.getElementById('config-table');
+            if (configTable) {
+                configTable.style.display = 'block';
+                configTable.style.visibility = 'visible';
+            }
             
-            // Tạo modal nếu không tồn tại
-            if (!summaryModal) {
-                createModalElements();
-                return calculateTotalPriceAndSummary(); // Gọi lại hàm sau khi tạo modal
+            // Show the modal with detailed configuration
+            const summaryModal = document.getElementById('summary-modal');
+            if (summaryModal) {
+                summaryModal.style.display = 'block';
             }
-            return;
-        }
-
-        const calculationResult = updateSelectedComponents(); // Get the return value
-        const total = calculationResult.total;         // Extract total
-        const selectedComponentsDetails = calculationResult.selectedComponentsDetails; // Extract selectedComponentsDetails
-
-        // Đảm bảo modal hiển thị ở giữa màn hình
-        summaryModal.style.display = 'block';
-        summaryModal.style.position = 'fixed';
-        summaryModal.style.zIndex = '9999';
-        summaryModal.style.left = '0';
-        summaryModal.style.top = '0';
-        summaryModal.style.width = '100%';
-        summaryModal.style.height = '100%';
-        summaryModal.style.overflow = 'auto';
-        summaryModal.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        
-        // Đảm bảo modal content có style phù hợp
-        const modalContent = summaryModal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.style.backgroundColor = '#fff';
-            modalContent.style.margin = '50px auto';
-            modalContent.style.padding = '20px';
-            modalContent.style.width = '80%';
-            modalContent.style.maxWidth = '900px';
-            modalContent.style.borderRadius = '5px';
-            modalContent.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
         }
         
-        modalSummaryContent.innerHTML = ''; // Xóa nội dung cũ của modal
-        imagePreviewContainer.innerHTML = ''; // Xóa ảnh cũ nếu có
-
-        // Hiển thị phần tổng tiền
-        modalTotalPriceDisplay.style.display = 'block';
-        modalTotalPriceDisplay.style.marginTop = '20px';
-        modalTotalPriceDisplay.style.fontWeight = 'bold';
-        modalTotalPriceDisplay.style.fontSize = '18px';
-
-        // Tạo bảng HTML để hiển thị thông tin chi tiết
-        const table = document.createElement('table');
-        table.className = 'component-table'; // Thêm class để CSS (tùy chọn)
-
-        // Tạo hàng tiêu đề bảng
-        const headerRow = table.insertRow();
-        const headers = ['STT', 'HÌNH ẢNH', 'TÊN LINH KIỆN', 'GIÁ TIỀN', 'BẢO HÀNH', 'TÌNH TRẠNG']; // Thêm "STT" và "HÌNH ẢNH"
-        headers.forEach(headerText => {
-            const headerCell = document.createElement('th');
-            headerCell.textContent = headerText;
-            headerRow.appendChild(headerCell);
-        });
-
-        // Thêm dữ liệu linh kiện vào bảng
-        selectedComponentsDetails.forEach((component, index) => {
-            const dataRow = table.insertRow();
-
-            // Ô STT
-            const sttCell = dataRow.insertCell();
-            sttCell.textContent = index + 1; // STT từ 1 đến n
-
-            // Ô Hình ảnh
-            const imageCell = dataRow.insertCell();
-            if (component.image) {
-                const img = document.createElement('img');
-                img.src = component.image;
-                img.alt = component.name;
-                img.setAttribute('data-component-type', ''); // Để fallback hoạt động
-                img.style.maxWidth = '70px'; // Điều chỉnh kích thước ảnh trong bảng
-                img.onerror = function() {
-                    // Tìm loại linh kiện từ component
-                    let componentType = '';
-                    for (const [type, select] of Object.entries(componentSelects)) {
-                        if (select.value === Object.keys(components[type]).find(key => components[type][key] === component)) {
-                            componentType = type;
-                            break;
-                        }
-                    }
-                    
-                    // Sử dụng handleImageError global
-                    window.handleImageError(this, componentType);
-                };
-                
-                // Tạo wrapper cho ảnh
-                const wrapper = document.createElement('div');
-                wrapper.className = 'component-image-wrapper';
-                wrapper.appendChild(img);
-                
-                // Thêm vào cell
-                imageCell.appendChild(wrapper);
-            } else {
-                // Tạo fallback cho các component không có ảnh
-                let componentType = '';
-                for (const [type, select] of Object.entries(componentSelects)) {
-                    if (select.value === Object.keys(components[type]).find(key => components[type][key] === component)) {
-                        componentType = type;
-                        break;
-                    }
-                }
-                
-                // Tạo canvas để tạo fallback image
-                const canvas = document.createElement('canvas');
-                canvas.width = 70;
-                canvas.height = 70;
-                const ctx = canvas.getContext('2d');
-                
-                // Tô màu nền
-                ctx.fillStyle = '#333';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Vẽ chữ
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(componentType.toUpperCase(), canvas.width/2, canvas.height/2);
-                
-                // Tạo img element từ canvas
-                const img = document.createElement('img');
-                img.src = canvas.toDataURL('image/png');
-                img.alt = componentType;
-                img.style.maxWidth = '70px';
-                
-                // Tạo wrapper 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'component-image-wrapper';
-                wrapper.appendChild(img);
-                
-                // Thêm vào cell
-                imageCell.appendChild(wrapper);
-            }
-
-            // Ô Tên linh kiện
-            const nameCell = dataRow.insertCell();
-            nameCell.textContent = component.name;
-
-            // Ô Giá
-            const priceCell = dataRow.insertCell();
-            priceCell.textContent = `${component.price.toLocaleString()} VNĐ`;
-
-            // Ô Bảo hành
-            const warrantyCell = dataRow.insertCell();
-            warrantyCell.textContent = component.warranty || '36T';
-
-            // Ô Tình trạng
-            const conditionCell = dataRow.insertCell();
-            conditionCell.textContent = component.condition || 'NEW';
-        });
-
-        modalSummaryContent.appendChild(table); // Thêm bảng vào modal
-        summaryModal.style.display = 'block'; // Hiển thị modal
-        modalTotalPriceDisplay.style.display = 'block'; // Đảm bảo phần tử hiển thị
-        modalTotalPriceDisplay.textContent = `Tổng cộng: ${total.toLocaleString()} VNĐ`; // Cập nhật giá tiền
+        return totalPrice;
     }
 
     // Cập nhật điểm cho các thành phần
@@ -3465,7 +3427,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Hiển thị modal chi tiết cấu hình
     function showConfigDetailModal(configData) {
         // Tìm các phần tử cần thiết
-        const modal = document.querySelector('.modal');
+        const modal = document.getElementById('summary-modal');
         const modalContent = modal ? modal.querySelector('.modal-content') : null;
         const modalComponentsList = document.getElementById('modal-components-list');
         

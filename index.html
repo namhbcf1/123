@@ -1546,7 +1546,42 @@
     <!-- Script to handle the show all config tables button -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize buttons for showing modal
+            const calculateButton = document.getElementById('calculate-button');
+            const showConfigDetailsButton = document.getElementById('show-config-details');
             const showAllConfigTablesButton = document.getElementById('show-all-config-tables');
+            const summaryModal = document.getElementById('summary-modal');
+            const closeModalBtn = document.querySelector('.close-modal');
+            
+            // Handler for Calculate button
+            if (calculateButton) {
+                calculateButton.addEventListener('click', function() {
+                    console.log('Calculate button clicked - showing detailed configuration modal');
+                    
+                    // Calculate and update total price
+                    if (typeof window.calculateTotalPriceAndSummary === 'function') {
+                        window.calculateTotalPriceAndSummary();
+                    }
+                    
+                    // Force show both tables
+                    if (typeof window.forceShowComponentTable === 'function') {
+                        window.forceShowComponentTable();
+                    } else {
+                        // Fallback to direct manipulation
+                        const configTable = document.getElementById('config-table');
+                        if (configTable) {
+                            configTable.style.display = 'block';
+                            configTable.style.visibility = 'visible';
+                        }
+                        
+                        if (summaryModal) {
+                            summaryModal.style.display = 'block';
+                        }
+                    }
+                });
+            }
+            
+            // Handler for "Show all config tables" button
             if (showAllConfigTablesButton) {
                 showAllConfigTablesButton.addEventListener('click', function() {
                     console.log('Show all config tables button clicked');
@@ -1565,12 +1600,32 @@
                         }
                         
                         // Show the modal with detailed configuration
-                        const modal = document.getElementById('summary-modal');
-                        if (modal) {
-                            modal.style.display = 'block';
+                        if (summaryModal) {
+                            summaryModal.style.display = 'block';
+                            
+                            // Make sure modal content is updated
+                            if (typeof window.showConfigDetailModal === 'function') {
+                                window.showConfigDetailModal();
+                            }
                         }
                     }
                 });
+            }
+            
+            // Close modal handlers
+            if (closeModalBtn && summaryModal) {
+                closeModalBtn.addEventListener('click', function() {
+                    summaryModal.style.display = 'none';
+                    console.log('Closing modal via close button');
+                });
+                
+                // Also close when clicking outside
+                window.onclick = function(event) {
+                    if (event.target == summaryModal) {
+                        summaryModal.style.display = 'none';
+                        console.log('Closing modal via outside click');
+                    }
+                };
             }
         });
     </script>
