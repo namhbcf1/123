@@ -335,6 +335,7 @@ window.getComponentData = getComponentData;
 window.getComponentSpecs = getComponentSpecs;
 window.getComponentImageUrl = getComponentImageUrl;
 window.formatPrice = formatPrice;
+window.showConfigDetailModal = showConfigDetailModal;
 
 (function() {
     // Kiểm tra DOM đã sẵn sàng chưa
@@ -581,9 +582,21 @@ window.formatPrice = formatPrice;
     }
     
     // Cập nhật nội dung modal
-    function updateModalContent(modal) {
+    function updateModalContent() {
+        const modal = document.getElementById('component-detail-modal');
+        if (!modal) return;
+        
         // Lấy dữ liệu từ bảng chính
         const configData = collectConfigData();
+        
+        // Kiểm tra xem có bất kỳ linh kiện nào được chọn chưa
+        const hasAnyComponent = Object.keys(configData).length > 0;
+        
+        // Nếu không có linh kiện nào được chọn, không hiển thị modal
+        if (!hasAnyComponent) {
+            console.log("Không có linh kiện nào được chọn, không hiển thị modal");
+            return;
+        }
         
         // Tính tổng tiền
         let totalPrice = 0;
@@ -594,69 +607,127 @@ window.formatPrice = formatPrice;
         }
         
         // Cập nhật tổng tiền
-        const totalPriceElement = modal.querySelector('#modal-total-price');
+        const totalPriceElement = document.getElementById('modal-total-price');
         if (totalPriceElement) {
-            totalPriceElement.textContent = `Tổng cộng: ${formatPrice(totalPrice)} VNĐ`;
+            totalPriceElement.textContent = `${formatPrice(totalPrice)} VNĐ`;
         }
         
-        // Cập nhật danh sách linh kiện
-        const componentsList = modal.querySelector('#modal-components-list');
-        if (componentsList) {
-            // Tạo bảng
-            let tableHtml = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>LOẠI</th>
-                            <th>HÌNH ẢNH</th>
-                            <th>TÊN LINH KIỆN</th>
-                            <th>GIÁ TIỀN</th>
-                            <th>BẢO HÀNH</th>
-                            <th>TÌNH TRẠNG</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            // Component types
-            const componentTypes = {
-                CPU: 'CPU',
-                Mainboard: 'Mainboard',
-                RAM: 'RAM',
-                VGA: 'VGA',
-                SSD: 'SSD',
-                PSU: 'Nguồn',
-                Case: 'Vỏ case',
-                Cooler: 'Tản nhiệt',
-                HDD: 'Ổ cứng HDD',
-                Monitor: 'Màn hình'
-            };
-            
-            // Thêm các hàng
-            for (const key in componentTypes) {
-                if (configData[key]) {
-                    const component = configData[key];
-                    const componentData = getComponentData(key, document.getElementById(key.toLowerCase()).value);
-                    
-                    tableHtml += `
-                        <tr>
-                            <td>${componentTypes[key]}</td>
-                            <td><img src="${component.image || getComponentImageUrl(key)}" alt="${key}" style="width:50px;height:auto;"></td>
-                            <td>${component.name || 'Chưa chọn'}</td>
-                            <td>${formatPrice(component.price)} VNĐ</td>
-                            <td>${componentData?.warranty || '36T'}</td>
-                            <td>${componentData?.condition || 'Mới'}</td>
-                        </tr>
-                    `;
+        // Ánh xạ từ loại linh kiện sang các ID trong modal
+        const componentMappings = {
+            'CPU': {
+                name: 'modal-cpu-name',
+                price: 'modal-cpu-price',
+                image: 'modal-cpu-image',
+                warranty: 'modal-cpu-warranty',
+                status: 'modal-cpu-status'
+            },
+            'Mainboard': {
+                name: 'modal-mainboard-name',
+                price: 'modal-mainboard-price',
+                image: 'modal-mainboard-image',
+                warranty: 'modal-mainboard-warranty',
+                status: 'modal-mainboard-status'
+            },
+            'RAM': {
+                name: 'modal-ram-name',
+                price: 'modal-ram-price',
+                image: 'modal-ram-image',
+                warranty: 'modal-ram-warranty',
+                status: 'modal-ram-status'
+            },
+            'VGA': {
+                name: 'modal-vga-name',
+                price: 'modal-vga-price',
+                image: 'modal-vga-image',
+                warranty: 'modal-vga-warranty',
+                status: 'modal-vga-status'
+            },
+            'SSD': {
+                name: 'modal-ssd-name',
+                price: 'modal-ssd-price',
+                image: 'modal-ssd-image',
+                warranty: 'modal-ssd-warranty',
+                status: 'modal-ssd-status'
+            },
+            'PSU': {
+                name: 'modal-psu-name',
+                price: 'modal-psu-price',
+                image: 'modal-psu-image',
+                warranty: 'modal-psu-warranty',
+                status: 'modal-psu-status'
+            },
+            'Case': {
+                name: 'modal-case-name',
+                price: 'modal-case-price',
+                image: 'modal-case-image',
+                warranty: 'modal-case-warranty',
+                status: 'modal-case-status'
+            },
+            'Cooler': {
+                name: 'modal-cooler-name',
+                price: 'modal-cooler-price',
+                image: 'modal-cooler-image',
+                warranty: 'modal-cooler-warranty',
+                status: 'modal-cooler-status'
+            }
+        };
+        
+        // Cập nhật thông tin từng linh kiện
+        for (const [componentType, component] of Object.entries(configData)) {
+            const mapping = componentMappings[componentType];
+            if (mapping && component) {
+                // Cập nhật tên
+                const nameElement = document.getElementById(mapping.name);
+                if (nameElement) nameElement.textContent = component.name || '';
+                
+                // Cập nhật giá
+                const priceElement = document.getElementById(mapping.price);
+                if (priceElement) priceElement.textContent = component.price ? `${formatPrice(component.price)} VNĐ` : '';
+                
+                // Cập nhật hình ảnh
+                const imageElement = document.getElementById(mapping.image);
+                if (imageElement) {
+                    if (component.image) {
+                        imageElement.innerHTML = `<img src="${component.image}" alt="${componentType}" style="width: 40px; height: 40px; object-fit: cover;">`;
+                    } else {
+                        // Sử dụng icon cho từng loại linh kiện
+                        const iconClass = 
+                            componentType === 'CPU' ? 'fas fa-microchip' :
+                            componentType === 'Mainboard' ? 'fas fa-server' :
+                            componentType === 'VGA' ? 'fas fa-tv' :
+                            componentType === 'RAM' ? 'fas fa-memory' :
+                            componentType === 'SSD' ? 'fas fa-hdd' :
+                            componentType === 'PSU' ? 'fas fa-bolt' :
+                            componentType === 'Case' ? 'fas fa-cube' :
+                            componentType === 'Cooler' ? 'fas fa-wind' :
+                            'fas fa-desktop';
+                        
+                        imageElement.innerHTML = `<i class="${iconClass}" style="font-size: 32px; color: #0053b4;"></i>`;
+                    }
+                }
+                
+                // Cập nhật bảo hành
+                const warrantyElement = document.getElementById(mapping.warranty);
+                const componentData = getComponentData(componentType, document.getElementById(componentType.toLowerCase())?.value);
+                if (warrantyElement) {
+                    warrantyElement.textContent = componentData?.warranty || '36 tháng';
+                }
+                
+                // Cập nhật tình trạng
+                const statusElement = document.getElementById(mapping.status);
+                if (statusElement) {
+                    const status = componentData?.condition || 'Mới';
+                    const statusColor = status.toLowerCase().includes('mới') || status.toLowerCase() === 'new' ? '#4CAF50' : '#FFC107';
+                    statusElement.innerHTML = `<span style="color: ${statusColor}; font-weight: bold;">${status.toUpperCase()}</span>`;
                 }
             }
-            
-            tableHtml += `
-                    </tbody>
-                </table>
-            `;
-            
-            componentsList.innerHTML = tableHtml;
+        }
+        
+        // Hiển thị modal
+        if (typeof $ !== 'undefined' && typeof $.fn.modal !== 'undefined') {
+            $('#component-detail-modal').modal('show');
+        } else {
+            modal.style.display = 'block';
         }
     }
     
@@ -974,4 +1045,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Run when the page is fully loaded
     setTimeout(ensureComponentTableVisible, 1000);
-}); 
+});
+
+// Hàm kiểm tra xem đã chọn đủ linh kiện cơ bản chưa
+function hasRequiredComponents() {
+    const requiredComponents = ['cpu', 'mainboard', 'ram', 'vga', 'ssd'];
+    for (const component of requiredComponents) {
+        const select = document.getElementById(component);
+        if (!select || !select.value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Hiển thị modal khi người dùng chọn đủ linh kiện
+function showConfigDetailModal() {
+    if (hasRequiredComponents()) {
+        updateModalContent();
+    } else {
+        alert('Vui lòng chọn ít nhất các linh kiện cơ bản (CPU, Mainboard, RAM, VGA, SSD) trước khi xem chi tiết cấu hình.');
+    }
+} 

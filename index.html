@@ -916,14 +916,15 @@
                                     <!-- CPU row -->
                                     <tr>
                                         <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;">1</td>
-                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;">
-                                            <img src="images/components/cpu.jpg" alt="CPU" style="width: 40px; height: 40px; object-fit: cover;">
+                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;" id="modal-cpu-image">
+                                            <!-- Dynamic content -->
                                         </td>
-                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;" id="modal-cpu-name">Intel Core i5-12400F</td>
-                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd; color: #f44336;" id="modal-cpu-price">2,400,000 VNĐ</td>
-                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;">36 tháng</td>
-                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;"><span style="color: #4CAF50; font-weight: bold;">NEW</span></td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #ddd;" id="modal-cpu-name"><!-- Dynamic content --></td>
+                                        <td style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd; color: #f44336;" id="modal-cpu-price"><!-- Dynamic content --></td>
+                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;" id="modal-cpu-warranty"><!-- Dynamic content --></td>
+                                        <td style="text-align: center; padding: 8px; border-bottom: 1px solid #ddd;" id="modal-cpu-status"><!-- Dynamic content --></td>
                                     </tr>
+                                    
                                     
                                     <!-- Mainboard row -->
                                     <tr>
@@ -1062,7 +1063,7 @@
             </div>
             
             <!-- Bảng chi tiết cấu hình -->
-            <div id="config-table" class="config-table force-visible" style="display:table !important; visibility:visible !important; opacity:1 !important; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
+            <div id="config-table" class="config-table" style="display:none; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
                 <h2 style="text-align: center; color: var(--primary-color); margin: 15px 0; font-size: 24px;"><i class="fas fa-clipboard-list"></i> BẢNG CHI TIẾT CẤU HÌNH MÁY TÍNH</h2>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
@@ -1889,30 +1890,41 @@
 
     // Fix for the linter error by using var declaration and separating statements
     function forceVisibleSections() {
-        // Fix: Use var instead of const and split the declaration from assignment
-        var modal;
-        modal = document.getElementById('component-detail-modal');
+        console.log('Forcing all sections to be visible');
         
-        if (modal) {
-            modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+        // Force config-table to be visible
+        const configTable = document.getElementById('config-table');
+        if (configTable) {
+            configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
         }
         
-        // Show the rest of the important sections
-        var sections = [
-            'component-selection',
-            'additional-selection',
-            'selected-components',
-            'config-table',
-            'total-price'
-        ];
+        // Force all children of config-table to be visible
+        if (configTable) {
+            const children = configTable.querySelectorAll('*');
+            children.forEach(child => {
+                if (child.tagName === 'TABLE') {
+                    child.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
+                } else if (child.tagName === 'TR') {
+                    child.style.cssText = 'display: table-row !important; visibility: visible !important; opacity: 1 !important;';
+                } else if (child.tagName === 'TD' || child.tagName === 'TH') {
+                    child.style.cssText = 'display: table-cell !important; visibility: visible !important; opacity: 1 !important; padding: 8px !important; border: 1px solid #ddd !important;';
+                } else if (child.tagName === 'TBODY' || child.tagName === 'THEAD') {
+                    child.style.cssText = 'display: table-row-group !important; visibility: visible !important; opacity: 1 !important;';
+                } else if (child.classList.contains('flex-container') || 
+                           child.classList.contains('d-flex') ||
+                           child.style.display === 'flex') {
+                    child.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+                } else {
+                    child.style.cssText = 'visibility: visible !important; opacity: 1 !important;';
+                }
+            });
+        }
         
-        sections.forEach(function(id) {
-            var section = document.getElementById(id);
-            if (section) {
-                section.style.display = 'block';
-                section.style.visibility = 'visible';
-                section.style.opacity = '1';
-            }
+        // Modal handling removed - we don't want to force the modal to be visible
+        
+        // Force all selection-section elements to be visible
+        document.querySelectorAll('.selection-section').forEach(section => {
+            section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
         });
     }
 
@@ -2976,104 +2988,41 @@ table {
 <script>
 // Force visible all important sections
 function forceVisibleSections() {
-    // List of important section IDs
-    const importantSections = [
-        'component-selection',
-        'additional-selection',
-        'selected-components',
-        'config-table',
-        'total-price'
-    ];
+    console.log('Forcing all sections to be visible');
     
-    // Force each section to be visible
-    importantSections.forEach(id => {
-        const section = document.getElementById(id);
-        if (section) {
-            section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-            
-            // Also make all children visible
-            const children = section.querySelectorAll('*');
-            children.forEach(child => {
-                // Don't force display: block on elements that should be flex or table
-                if (child.tagName === 'TABLE') {
-                    child.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
-                } else if (child.classList.contains('flex-container') || 
-                           child.classList.contains('d-flex') ||
-                           child.style.display === 'flex') {
-                    child.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
-                } else {
-                    child.style.cssText = 'visibility: visible !important; opacity: 1 !important;';
-                }
-            });
-        }
+    // Force config-table to be visible
+    const configTable = document.getElementById('config-table');
+    if (configTable) {
+        configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
     }
     
-    // Force the component-detail-modal to be visible with correct styling
-    const modal = document.getElementById('component-detail-modal');
-    if (modal) {
-        modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
-        
-        // Find modal content and set its style
-        const modalContent = modal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.style.cssText = 'position: relative !important; background-color: white !important; margin: 30px auto !important; padding: 0 !important; border-radius: 5px !important; max-width: 800px !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
-        }
-        
-        // Add proper close button if it doesn't exist
-        if (!modal.querySelector('.close-button')) {
-            const closeButton = document.createElement('button');
-            closeButton.className = 'close-button';
-            closeButton.innerHTML = '&times;';
-            closeButton.style.cssText = 'position: absolute !important; top: 10px !important; right: 10px !important; font-size: 24px !important; font-weight: bold !important; background: none !important; border: none !important; color: white !important; cursor: pointer !important; z-index: 10001 !important;';
-            
-            closeButton.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-            
-            const modalHeader = modal.querySelector('.modal-header');
-            if (modalHeader) {
-                modalHeader.appendChild(closeButton);
-            } else if (modalContent) {
-                modalContent.insertBefore(closeButton, modalContent.firstChild);
+    // Force all children of config-table to be visible
+    if (configTable) {
+        const children = configTable.querySelectorAll('*');
+        children.forEach(child => {
+            if (child.tagName === 'TABLE') {
+                child.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
+            } else if (child.tagName === 'TR') {
+                child.style.cssText = 'display: table-row !important; visibility: visible !important; opacity: 1 !important;';
+            } else if (child.tagName === 'TD' || child.tagName === 'TH') {
+                child.style.cssText = 'display: table-cell !important; visibility: visible !important; opacity: 1 !important; padding: 8px !important; border: 1px solid #ddd !important;';
+            } else if (child.tagName === 'TBODY' || child.tagName === 'THEAD') {
+                child.style.cssText = 'display: table-row-group !important; visibility: visible !important; opacity: 1 !important;';
+            } else if (child.classList.contains('flex-container') || 
+                       child.classList.contains('d-flex') ||
+                       child.style.display === 'flex') {
+                child.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
             } else {
-                modal.appendChild(closeButton);
+                child.style.cssText = 'visibility: visible !important; opacity: 1 !important;';
             }
-        }
+        });
     }
+    
+    // Modal handling removed - we don't want to force the modal to be visible
     
     // Force all selection-section elements to be visible
     document.querySelectorAll('.selection-section').forEach(section => {
         section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-    });
-    
-    // Force all dropdowns to be visible and properly styled
-    document.querySelectorAll('select, .dropdown').forEach(dropdown => {
-        dropdown.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; padding: 8px !important; border: 1px solid #ddd !important; border-radius: 4px !important; background-color: white !important;';
-    });
-    
-    // Replace all missing images with Font Awesome icons
-    document.querySelectorAll('img').forEach(img => {
-        if (!img.complete || img.naturalHeight === 0) {
-            const type = img.alt?.toLowerCase() || '';
-            const iconClass = 
-                type.includes('cpu') ? 'fas fa-microchip' :
-                type.includes('mainboard') ? 'fas fa-server' :
-                type.includes('vga') ? 'fas fa-tv' :
-                type.includes('ram') ? 'fas fa-memory' :
-                type.includes('ssd') || type.includes('hdd') ? 'fas fa-hdd' :
-                type.includes('psu') ? 'fas fa-bolt' :
-                type.includes('case') ? 'fas fa-cube' :
-                type.includes('cooler') ? 'fas fa-wind' :
-                'fas fa-desktop';
-            
-            const icon = document.createElement('i');
-            icon.className = iconClass;
-            icon.style.cssText = 'font-size: 32px !important; color: #0053b4 !important;';
-            
-            if (img.parentNode) {
-                img.parentNode.replaceChild(icon, img);
-            }
-        }
     });
 }
 
@@ -3096,8 +3045,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Also run on window load
 window.addEventListener('load', function() {
-    forceVisibleSections();
-    setTimeout(forceVisibleSections, 1000);
+    // Don't automatically run forceVisibleSections
+    // forceVisibleSections();
+    // setTimeout(forceVisibleSections, 1000);
 });
 </script>
 
@@ -3135,11 +3085,9 @@ td, th {
     border: 1px solid #ddd !important;
 }
 
-/* Style modal correctly */
+/* Style modal correctly but hide it by default */
 #component-detail-modal {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+    display: none; /* Hide by default */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -3255,18 +3203,13 @@ window.addEventListener('load', function() {
         // Force component-detail-modal to be visible
         const modal = document.getElementById('component-detail-modal');
         if (modal) {
-            modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
-            
-            // Find modal dialog and set its style
-            const modalDialog = modal.querySelector('.modal-dialog');
-            if (modalDialog) {
-                modalDialog.style.cssText = 'margin: 30px auto !important; max-width: 800px !important; background: white !important; border-radius: 5px !important; overflow: hidden !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
-            }
+            // Don't force visibility - let it be controlled by user interactions
+            // modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
             
             // Find modal content and set its style
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
-                modalContent.style.cssText = 'position: relative !important; background-color: white !important; border-radius: 5px !important;';
+                modalContent.style.cssText = 'position: relative !important; background-color: white !important; margin: 30px auto !important; padding: 0 !important; border-radius: 5px !important; max-width: 800px !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
             }
         }
         
@@ -3309,5 +3252,73 @@ window.addEventListener('load', function() {
     setTimeout(() => {
         forceShowButton.click();
     }, 5000);
+});
+</script>
+
+<script>
+// Add event listeners to the buttons to show modal on click
+document.addEventListener('DOMContentLoaded', function() {
+    // Button to show detailed configuration
+    const calculateButton = document.getElementById('calculate-button');
+    if (calculateButton) {
+        calculateButton.addEventListener('click', function() {
+            // First update and show the config table
+            const configTable = document.getElementById('config-table');
+            if (configTable) {
+                // Update component images and table data
+                if (typeof window.updateConfigTableImages === 'function') {
+                    window.updateConfigTableImages();
+                }
+                // Show the table
+                configTable.style.display = 'block';
+                // Scroll to the table
+                configTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Then try to show the modal if components are selected
+            if (typeof window.showConfigDetailModal === 'function') {
+                window.showConfigDetailModal();
+            }
+        });
+    }
+    
+    // Button to show detailed configuration from inside the table
+    const showConfigDetailsButton = document.getElementById('show-config-details');
+    if (showConfigDetailsButton) {
+        showConfigDetailsButton.addEventListener('click', function() {
+            if (typeof window.showConfigDetailModal === 'function') {
+                window.showConfigDetailModal();
+            }
+        });
+    }
+    
+    // Button to show all config tables
+    const showAllConfigTablesButton = document.getElementById('show-all-config-tables');
+    if (showAllConfigTablesButton) {
+        showAllConfigTablesButton.addEventListener('click', function() {
+            const configTable = document.getElementById('config-table');
+            if (configTable) {
+                // Update component images and table data
+                if (typeof window.updateConfigTableImages === 'function') {
+                    window.updateConfigTableImages();
+                }
+                // Show the table
+                configTable.style.display = 'block';
+                // Scroll to the table
+                configTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+    
+    // Close button in modal
+    const closeModalButton = document.querySelector('#component-detail-modal .close');
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', function() {
+            const modal = document.getElementById('component-detail-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
