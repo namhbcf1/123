@@ -126,14 +126,14 @@ function updateDropdownEnhanced(id, value) {
         
         // Nếu tất cả phương pháp đều thất bại, chọn một giá trị mặc định dựa trên loại dropdown
         const defaultSelections = {
-            'cpu': selectFirstNonEmptyOption(dropdown),
-            'mainboard': selectFirstNonEmptyOption(dropdown),
-            'vga': selectFirstNonEmptyOption(dropdown),
-            'ram': selectFirstNonEmptyOption(dropdown),
-            'ssd': selectFirstNonEmptyOption(dropdown),
-            'cpuCooler': selectFirstNonEmptyOption(dropdown),
-            'psu': selectFirstNonEmptyOption(dropdown),
-            'case': selectFirstNonEmptyOption(dropdown)
+            'cpu': null,
+            'mainboard': null,
+            'vga': null,
+            'ram': null,
+            'ssd': null,
+            'cpuCooler': null,
+            'psu': null,
+            'case': null
         };
         
         if (defaultSelections[id]) {
@@ -155,6 +155,14 @@ function selectFirstNonEmptyOption(dropdown) {
         if (option && !option.disabled && option.value && option.value !== "null" && option.value !== "") {
             return option;
         }
+    }
+    return null;
+}
+
+// Hàm trả về option placeholder (option đầu tiên)
+function selectPlaceholderOption(dropdown) {
+    if (dropdown.options.length > 0) {
+        return dropdown.options[0];
     }
     return null;
 }

@@ -1633,80 +1633,192 @@ document.addEventListener('DOMContentLoaded', function () {
     document.head.appendChild(style);
 
     function updateSelectedComponents() {
-        updateScores()
+        updateScores();
+        
+        // Get component data containers
+        const selectedComponentsList = document.getElementById('selected-components-list');
+        const totalPriceDisplay = document.getElementById('total-price');
+        
+        if (!selectedComponentsList || !totalPriceDisplay) {
+            console.error('Selected components containers not found');
+            return;
+        }
+        
+        // Clear previous content
         selectedComponentsList.innerHTML = '';
+        
+        // Selected components details
+        const selectedComponentsDetails = [];
         let total = 0;
-        const selectedComponentsDetails = []; // Khởi tạo mảng để chứa thông tin chi tiết linh kiện
-
-        // Tính toán tổng giá và tạo card
-        for (const [type, select] of Object.entries(componentSelects)) {
-            const value = select.value;
-            if (value && components[type]?.[value]) {
-                const component = components[type][value];
-                total += component.price;
-
-                const card = document.createElement('div');
-                card.className = 'component-card';
-
-                // Create image HTML with error handling
-                const imageHtml = component.image 
-                    ? `<img src="${component.image}" class="component-image" alt="${component.name}" data-component-type="${type}" onerror="handleImageError(this)">`
-                    : `<div class="component-image-placeholder" style="background-color: #f0f0f0; height: 150px; display: flex; align-items: center; justify-content: center;">${component.name}</div>`;
-
-                card.innerHTML = `
-                    ${imageHtml}
-                    <h3>${component.name} - ${component.price.toLocaleString()} VNĐ</h3>
-                    <div class="component-info" style="display: none;">
-                        ${component.socket ? `<p>Socket: ${component.socket}</p>` : ''}
-                        ${component.memoryType ? `<p>Loại RAM: ${component.memoryType}</p>` : ''}
-                        ${component.cores ? `<p>Cores: ${component.cores}</p>` : ''}
-                        ${component.threads ? `<p>Threads: ${component.threads}</p>` : ''}
-                        ${component.technology ? `<p>Technology: ${component.technology}</p>` : ''}
-                        ${component.ram_support ? `<p>RAM Support: ${component.ram_support}</p>` : ''}
-                        ${component.ram_bus ? `<p>RAM Bus: ${component.ram_bus}</p>` : ''}
-                        ${component.vram ? `<p>VRAM: ${component.vram}</p>` : ''}
-                        ${component.vram_type ? `<p>VRAM Type: ${component.vram_type}</p>` : ''}
-                        ${component.card_type ? `<p>Card Type: ${component.card_type}</p>` : ''}
-                        ${component.type ? `<p>Type: ${component.type}</p>` : ''}
-                        ${component.speed ? `<p>Speed: ${component.speed}</p>` : ''}
-                        ${component.size ? `<p>Size: ${component.size}</p>` : ''}
-                        ${component.nvmeSlots ? `<p>NVMe Slots: ${component.nvmeSlots}</p>` : ''}
-                        ${component.pcieVersion ? `<p>PCIe Version: ${component.pcieVersion}</p>` : ''}
-                        ${component.formFactor ? `<p>Form Factor: ${component.formFactor}</p>` : ''} <!-- Đã thêm dòng này -->
-                        ${component.panelType ? `<p>Panel Type: ${component.panelType}</p>` : ''}
-                        ${component.refreshRate ? `<p>Refresh Rate: ${component.refreshRate}</p>` : ''}
-                        ${component.screenSize ? `<p>Screen Size: ${component.screenSize}</p>` : ''}
         
-                        ${component.sockets ? `<p>Sockets hỗ trợ: ${component.sockets.join(', ')}</p>` : ''}
-                        ${component.sync ? `<p>Đồng bộ LED: ${component.sync}</p>` : ''}
+        // Get all selected components
+        const components = [
+            { element: document.getElementById('cpu'), type: 'cpu', dataObj: window.cpuData },
+            { element: document.getElementById('mainboard'), type: 'mainboard', dataObj: window.mainboardData },
+            { element: document.getElementById('vga'), type: 'vga', dataObj: window.vgaData },
+            { element: document.getElementById('ram'), type: 'ram', dataObj: window.ramData },
+            { element: document.getElementById('ssd'), type: 'ssd', dataObj: window.ssdData },
+            { element: document.getElementById('cpuCooler'), type: 'cpuCooler', dataObj: window.cpuCoolerData },
+            { element: document.getElementById('psu'), type: 'psu', dataObj: window.psuData },
+            { element: document.getElementById('case'), type: 'case', dataObj: window.caseData },
+            { element: document.getElementById('hdd'), type: 'hdd', dataObj: window.hddData },
+            { element: document.getElementById('monitor'), type: 'monitor', dataObj: window.monitorData }
+        ];
         
-                        ${component.supportedMainboards ? `<p>Mainboard hỗ trợ: ${component.supportedMainboards.join(', ')}</p>` : ''}
-                        ${component.dimensions ? `<p>Kích thước Case: ${component.dimensions}</p>` : ''}
-        
-                        ${component.connectors ? `<div class="connectors">
-                            <p>Connectors:</p>
-                            <ul>
-                                ${component.connectors.mainboard ? `<li>Mainboard: ${component.connectors.mainboard}</li>` : ''}
-                                ${component.connectors.cpu ? `<li>CPU: ${Array.isArray(component.connectors.cpu) ? component.connectors.cpu.join(', ') : component.connectors.cpu}</li>` : ''}
-                                ${component.connectors.pcie ? `<li>PCIe: ${Array.isArray(component.connectors.pcie) ? component.connectors.pcie.join(', ') : component.connectors.pcie}</li>` : ''}
-                                ${component.connectors.sata ? `<li>SATA: ${component.connectors.sata}</li>` : ''}
-                                ${component.connectors.molex ? `<li>Molex: ${component.connectors.molex}</li>` : ''}
-                            </ul>
-                        </div>` : ''}
-        
-                        ${component.power ? `<p>Power: ${component.power}</p>` : ''}
+        // Process each component
+        for (const comp of components) {
+            if (!comp.element || !comp.element.value || !comp.dataObj) continue;
+            
+            const selectedValue = comp.element.value;
+            const componentData = comp.dataObj[selectedValue];
+            
+            if (!componentData) continue;
+            
+            // Add price to total
+            total += componentData.price || 0;
+            
+            // Create component object for details
+            const component = {
+                type: comp.type,
+                name: componentData.name,
+                price: componentData.price || 0,
+                ...componentData
+            };
+            
+            // Create component card with improved styling
+            const card = document.createElement('div');
+            card.className = 'component-card';
+            card.style.width = 'calc(33.33% - 20px)';
+            card.style.margin = '10px';
+            card.style.padding = '15px';
+            card.style.borderRadius = '8px';
+            card.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            card.style.backgroundColor = '#fff';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'center';
+            card.style.textAlign = 'center';
+            card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+            card.style.cursor = 'pointer';
+            
+            // Create image element with proper path from the IMAGES folder
+            let imageHtml = '';
+            if (componentData.image) {
+                // Make sure we're using the actual image path from the IMAGES folder
+                const imagePath = componentData.image.startsWith('/images/') 
+                    ? componentData.image 
+                    : '/images/' + componentData.image;
+                
+                imageHtml = `
+                    <div class="component-image-container" style="width: 100px; height: 100px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">
+                        <img src="${imagePath}" alt="${componentData.name}" class="component-image" 
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;" 
+                            onerror="this.onerror=null; handleImageError(this);" data-component-type="${comp.type}">
                     </div>
                 `;
-
-                // Thêm sự kiện click để hiển thị thông tin chi tiết
-                card.addEventListener("click", function () {
-                    const info = card.querySelector(".component-info");
-                    info.style.display = info.style.display === "none" ? "block" : "none";
-                });
-
-                selectedComponentsList.appendChild(card);
-                selectedComponentsDetails.push(component);
+            } else {
+                // Fallback icon if no image is available
+                const iconClass = 
+                    comp.type === 'cpu' ? 'fa-microchip' :
+                    comp.type === 'mainboard' ? 'fa-server' :
+                    comp.type === 'vga' ? 'fa-tv' :
+                    comp.type === 'ram' ? 'fa-memory' :
+                    comp.type === 'ssd' || comp.type === 'hdd' ? 'fa-hdd' :
+                    comp.type === 'cpuCooler' ? 'fa-wind' :
+                    comp.type === 'psu' ? 'fa-bolt' :
+                    comp.type === 'case' ? 'fa-cube' :
+                    comp.type === 'monitor' ? 'fa-desktop' : 'fa-microchip';
+                
+                imageHtml = `
+                    <div class="component-icon-container" style="width: 80px; height: 80px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5; border-radius: 50%;">
+                        <i class="fas ${iconClass}" style="font-size: 40px; color: #0053b4;"></i>
+                    </div>
+                `;
             }
+            
+            // Component details with improved styling
+            let detailsHtml = `
+                <div class="component-details" style="width: 100%;">
+                    <h3 style="font-size: 16px; margin: 10px 0; font-weight: 600; color: #333;">${componentData.name}</h3>
+                    <p style="font-size: 18px; font-weight: 700; color: #e53935; margin: 5px 0;">${(componentData.price || 0).toLocaleString()} VNĐ</p>
+                    <div class="component-specs" style="font-size: 14px; color: #666; text-align: left; margin-top: 10px;">
+            `;
+            
+            // Add specifications based on component type
+            if (comp.type === 'cpu') {
+                detailsHtml += `
+                    ${componentData.socket ? `<p><strong>Socket:</strong> ${componentData.socket}</p>` : ''}
+                    ${componentData.cores ? `<p><strong>Cores:</strong> ${componentData.cores}</p>` : ''}
+                    ${componentData.threads ? `<p><strong>Threads:</strong> ${componentData.threads}</p>` : ''}
+                `;
+            } else if (comp.type === 'mainboard') {
+                detailsHtml += `
+                    ${componentData.sockets ? `<p><strong>Socket:</strong> ${Array.isArray(componentData.sockets) ? componentData.sockets.join(', ') : componentData.sockets}</p>` : ''}
+                    ${componentData.memoryType ? `<p><strong>Memory Type:</strong> ${componentData.memoryType}</p>` : ''}
+                    ${componentData.formFactor ? `<p><strong>Form Factor:</strong> ${componentData.formFactor}</p>` : ''}
+                `;
+            } else if (comp.type === 'vga') {
+                detailsHtml += `
+                    ${componentData.memory ? `<p><strong>Memory:</strong> ${componentData.memory}</p>` : ''}
+                    ${componentData.bus ? `<p><strong>Bus:</strong> ${componentData.bus}</p>` : ''}
+                `;
+            } else if (comp.type === 'ram') {
+                detailsHtml += `
+                    ${componentData.capacity ? `<p><strong>Capacity:</strong> ${componentData.capacity}</p>` : ''}
+                    ${componentData.speed ? `<p><strong>Speed:</strong> ${componentData.speed}</p>` : ''}
+                    ${componentData.memoryType ? `<p><strong>Type:</strong> ${componentData.memoryType}</p>` : ''}
+                `;
+            } else if (comp.type === 'ssd' || comp.type === 'hdd') {
+                detailsHtml += `
+                    ${componentData.capacity ? `<p><strong>Capacity:</strong> ${componentData.capacity}</p>` : ''}
+                    ${componentData.interface ? `<p><strong>Interface:</strong> ${componentData.interface}</p>` : ''}
+                    ${componentData.readSpeed ? `<p><strong>Read Speed:</strong> ${componentData.readSpeed}</p>` : ''}
+                `;
+            } else if (comp.type === 'cpuCooler') {
+                detailsHtml += `
+                    ${componentData.type ? `<p><strong>Type:</strong> ${componentData.type}</p>` : ''}
+                    ${componentData.tdp ? `<p><strong>TDP:</strong> ${componentData.tdp}</p>` : ''}
+                `;
+            } else if (comp.type === 'psu') {
+                detailsHtml += `
+                    ${componentData.power ? `<p><strong>Power:</strong> ${componentData.power}</p>` : ''}
+                    ${componentData.efficiency ? `<p><strong>Efficiency:</strong> ${componentData.efficiency}</p>` : ''}
+                    ${componentData.modular ? `<p><strong>Modular:</strong> ${componentData.modular}</p>` : ''}
+                `;
+            } else if (comp.type === 'case') {
+                detailsHtml += `
+                    ${componentData.formFactor ? `<p><strong>Form Factor:</strong> ${componentData.formFactor}</p>` : ''}
+                    ${componentData.material ? `<p><strong>Material:</strong> ${componentData.material}</p>` : ''}
+                `;
+            } else if (comp.type === 'monitor') {
+                detailsHtml += `
+                    ${componentData.screenSize ? `<p><strong>Screen Size:</strong> ${componentData.screenSize}</p>` : ''}
+                    ${componentData.resolution ? `<p><strong>Resolution:</strong> ${componentData.resolution}</p>` : ''}
+                    ${componentData.refreshRate ? `<p><strong>Refresh Rate:</strong> ${componentData.refreshRate}</p>` : ''}
+                `;
+            }
+            
+            detailsHtml += `
+                    </div>
+                </div>
+            `;
+            
+            // Combine all parts
+            card.innerHTML = `${imageHtml}${detailsHtml}`;
+            
+            // Hover effect
+            card.addEventListener('mouseover', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+            });
+            
+            card.addEventListener('mouseout', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            });
+
+            selectedComponentsList.appendChild(card);
+            selectedComponentsDetails.push(component);
         }
 
 
@@ -3424,236 +3536,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Hiển thị modal chi tiết cấu hình
-    function showConfigDetailModal(configData) {
-        console.log("Showing config detail modal");
-        
-        // Check if required components are selected
-        const cpu = document.getElementById('cpu');
-        const mainboard = document.getElementById('mainboard');
-        const vga = document.getElementById('vga');
-        
-        // Require at least CPU and mainboard to be selected
-        if ((!cpu || !cpu.value) || (!mainboard || !mainboard.value) || (!vga || !vga.value)) {
-            alert('Vui lòng chọn ít nhất CPU, Mainboard và VGA trước khi xem chi tiết cấu hình.');
-            return;
-        }
-        
-        // Ensure the modal exists before proceeding
-        let modal = document.getElementById('component-detail-modal');
-        if (!modal) {
-            console.log("Modal not found, creating it");
-            modal = createModalElements();
-        }
-        
-        const modalContent = modal ? modal.querySelector('.modal-content') : null;
-        const modalComponentsList = document.getElementById('modal-components-list');
-        
-        if (!modal || !modalContent) {
-            console.error('Modal elements not found even after creation attempt');
-            return;
-        }
-        
-        // Đảm bảo modal hiển thị
-        modal.style.display = 'block';
-        
-        // Hiển thị bảng cấu hình nếu tồn tại
-        const configTable = document.getElementById('config-table');
-        if (configTable) {
-            configTable.style.display = 'block';
-            configTable.style.visibility = 'visible';
-        }
-        
-        // Set up close button handler
-        const closeButtons = modal.querySelectorAll('[data-dismiss="modal"], .close, .btn-secondary');
-        closeButtons.forEach(function(button) {
-            // Remove existing handlers to avoid duplicates
-            const newButton = button.cloneNode(true);
-            if (button.parentNode) {
-                button.parentNode.replaceChild(newButton, button);
-            }
-            
-            // Add click handler to close the modal
-            newButton.addEventListener('click', function() {
-                modal.style.display = 'none';
-                
-                // Remove backdrop if it exists
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop && backdrop.parentNode) {
-                    backdrop.parentNode.removeChild(backdrop);
-                }
-                
-                console.log('Modal closed via button click');
-            });
-        });
-        
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-                
-                // Remove backdrop
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop && backdrop.parentNode) {
-                    backdrop.parentNode.removeChild(backdrop);
-                }
-                
-                console.log('Modal closed by clicking outside');
-            }
-        });
-        
-        // Populate modal components list if it exists
-        if (modalComponentsList) {
-            // Get selected components
-            const cpu = document.getElementById('cpu');
-            const mainboard = document.getElementById('mainboard');
-            const vga = document.getElementById('vga');
-            const ram = document.getElementById('ram');
-            const ssd = document.getElementById('ssd');
-            const cpuCooler = document.getElementById('cpuCooler');
-            const psu = document.getElementById('psu');
-            const caseComponent = document.getElementById('case');
-            const hdd = document.getElementById('hdd');
-            const monitor = document.getElementById('monitor');
-            
-            // Build HTML for modal components list
-            let componentsHtml = '<table class="config-detail-table" style="width:100%; border-collapse: collapse;">';
-            componentsHtml += `
-                <thead>
-                    <tr style="background-color: #2196F3; color: white;">
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">STT</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">HÌNH ẢNH</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">TÊN, MÃ, LOẠI LINH KIỆN</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">ĐVT</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">SỐ LƯỢNG</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">ĐƠN GIÁ</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">THÀNH TIỀN</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">BẢO HÀNH</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">GHI CHÚ</th>
-                    </tr>
-                </thead>
-                <tbody>
-            `;
-            
-            // ... rest of the function remains the same
-            // Add components
-            let totalPrice = 0;
-            let index = 1;
-            
-            // CPU
-            if (cpu && cpu.value && window.cpuData && window.cpuData[cpu.value]) {
-                const cpuInfo = window.cpuData[cpu.value];
-                componentsHtml += addComponentRow(index++, 'CPU', cpuInfo.name, cpuInfo.price, cpuInfo.image || 'image/cpu.png');
-                totalPrice += cpuInfo.price;
-            }
-            
-            // Mainboard
-            if (mainboard && mainboard.value && window.mainboardData && window.mainboardData[mainboard.value]) {
-                const mbInfo = window.mainboardData[mainboard.value];
-                componentsHtml += addComponentRow(index++, 'Mainboard', mbInfo.name, mbInfo.price, mbInfo.image || 'image/mainboard.png');
-                totalPrice += mbInfo.price;
-            }
-            
-            // VGA
-            if (vga && vga.value && window.vgaData && window.vgaData[vga.value]) {
-                const vgaInfo = window.vgaData[vga.value];
-                componentsHtml += addComponentRow(index++, 'VGA', vgaInfo.name, vgaInfo.price, vgaInfo.image || 'image/vga.png');
-                totalPrice += vgaInfo.price;
-            }
-            
-            // RAM
-            if (ram && ram.value && window.ramData && window.ramData[ram.value]) {
-                const ramInfo = window.ramData[ram.value];
-                componentsHtml += addComponentRow(index++, 'RAM', ramInfo.name, ramInfo.price, ramInfo.image || 'image/ram.png');
-                totalPrice += ramInfo.price;
-            }
-            
-            // SSD
-            if (ssd && ssd.value && window.ssdData && window.ssdData[ssd.value]) {
-                const ssdInfo = window.ssdData[ssd.value];
-                componentsHtml += addComponentRow(index++, 'SSD', ssdInfo.name, ssdInfo.price, ssdInfo.image || 'image/ssd.png');
-                totalPrice += ssdInfo.price;
-            }
-            
-            // CPU Cooler
-            if (cpuCooler && cpuCooler.value && window.cpuCoolerData && window.cpuCoolerData[cpuCooler.value]) {
-                const coolerInfo = window.cpuCoolerData[cpuCooler.value];
-                componentsHtml += addComponentRow(index++, 'Tản nhiệt CPU', coolerInfo.name, coolerInfo.price, coolerInfo.image || 'image/cpu-cooler.png');
-                totalPrice += coolerInfo.price;
-            }
-            
-            // PSU
-            if (psu && psu.value && window.psuData && window.psuData[psu.value]) {
-                const psuInfo = window.psuData[psu.value];
-                componentsHtml += addComponentRow(index++, 'Nguồn', psuInfo.name, psuInfo.price, psuInfo.image || 'image/psu.png');
-                totalPrice += psuInfo.price;
-            }
-            
-            // Case
-            if (caseComponent && caseComponent.value && window.caseData && window.caseData[caseComponent.value]) {
-                const caseInfo = window.caseData[caseComponent.value];
-                componentsHtml += addComponentRow(index++, 'Case', caseInfo.name, caseInfo.price, caseInfo.image || 'image/case.png');
-                totalPrice += caseInfo.price;
-            }
-            
-            // HDD (optional)
-            if (hdd && hdd.value && window.hddData && window.hddData[hdd.value]) {
-                const hddInfo = window.hddData[hdd.value];
-                componentsHtml += addComponentRow(index++, 'HDD', hddInfo.name, hddInfo.price, hddInfo.image || 'image/hdd.png');
-                totalPrice += hddInfo.price;
-            }
-            
-            // Monitor (optional)
-            if (monitor && monitor.value && window.monitorData && window.monitorData[monitor.value]) {
-                const monitorInfo = window.monitorData[monitor.value];
-                componentsHtml += addComponentRow(index++, 'Màn hình', monitorInfo.name, monitorInfo.price, monitorInfo.image || 'image/monitor.png');
-                totalPrice += monitorInfo.price;
-            }
-            
-            // Total row
-            componentsHtml += `
-                <tr class="total-row" style="background-color: #f5f5f5; font-weight: bold;">
-                    <td colspan="5" style="text-align: right; padding: 10px; border: 1px solid #ddd;"><strong>Tổng cộng</strong></td>
-                    <td colspan="4" style="text-align: right; padding: 10px; color: red; font-weight: bold; border: 1px solid #ddd;">${formatPrice(totalPrice)} VNĐ</td>
-                </tr>
-            `;
-            
-            componentsHtml += '</tbody></table>';
-            
-            // Update the modal components list
-            modalComponentsList.innerHTML = componentsHtml;
-            
-            // Update the total price in the modal
-            const modalTotalPrice = document.getElementById('modal-total-price');
-            if (modalTotalPrice) {
-                modalTotalPrice.textContent = `Tổng cộng: ${formatPrice(totalPrice)} VNĐ`;
-                modalTotalPrice.style.fontWeight = 'bold';
-                modalTotalPrice.style.color = 'red';
-                modalTotalPrice.style.fontSize = '18px';
-                modalTotalPrice.style.margin = '15px 0';
-                modalTotalPrice.style.textAlign = 'right';
-            }
-        }
-        
-        console.log('Modal displayed and populated successfully');
-    }
-    
-    // Helper function to add a component row to the modal table
-    function addComponentRow(index, type, name, price, image) {
-        return `
-            <tr>
-                <td style="text-align: center;">${index}</td>
-                <td style="text-align: center;"><img src="${image}" alt="${type}" style="width:60px; height:60px; object-fit:contain;"></td>
-                <td>${name}</td>
-                <td style="text-align: center;">Chiếc</td>
-                <td style="text-align: center;">1</td>
-                <td style="text-align: right;">${formatPrice(price)}</td>
-                <td style="text-align: right;">${formatPrice(price)}</td>
-                <td style="text-align: center;">36T</td>
-                <td style="text-align: center;">NEW</td>
-            </tr>
-        `;
-    }
+    // Configuration detail modal function removed
+function showConfigDetailModal(configData) {
+    console.log("Configuration detail modal has been removed");
+    // This function is kept as a stub to prevent errors in existing code
+}
 
     // Đảm bảo window.showConfigDetailModal luôn tham chiếu đến hàm mới nhất
     window.showConfigDetailModal = showConfigDetailModal;
@@ -4369,69 +4256,11 @@ window.enhancedCheckSocketCompatibility = function(cpuKey, mainboardKey) {
     }
 };
 
-// Force show component table when user has selected components
-function forceShowComponentTable() {
-    // Now enabled to show both configuration tables
-    console.log('Force showing both configuration tables');
-    
-    // 1. Show the main config table
-    const configTable = document.getElementById('config-table');
-    if (configTable) {
-        configTable.style.display = 'block';
-        configTable.style.visibility = 'visible';
-        
-        // Highlight the table with animation to draw attention
-        configTable.animate([
-            { boxShadow: '0 0 0 4px rgba(33, 150, 243, 0.5)' },
-            { boxShadow: '0 0 20px 0px rgba(33, 150, 243, 0.7)' },
-            { boxShadow: '0 0 0 4px rgba(33, 150, 243, 0.5)' }
-        ], {
-            duration: 1500,
-            easing: 'ease-in-out',
-            iterations: 2
-        });
-        
-        // Scroll to the table
-        setTimeout(() => {
-            configTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 300);
-    }
-    
-    // 2. Make sure the selected components section is visible
-    const selectedComponentsSection = document.getElementById('selected-components');
-    if (selectedComponentsSection) {
-        selectedComponentsSection.style.display = 'block';
-        selectedComponentsSection.style.visibility = 'visible';
-    }
-    
-    // 3. Show the modal with detailed configuration
-    const modal = document.getElementById('summary-modal');
-    if (modal) {
-        modal.style.display = 'block';
-    }
-    
-    // 4. Call the showConfigDetailModal function to update contents
-    if (typeof window.showConfigDetailModal === 'function') {
-        window.showConfigDetailModal();
-    } else {
-        console.error('showConfigDetailModal function not found');
-    }
-    
-    // 5. Update the configuration data in the main table if needed
-    if (typeof window.calculateTotalPriceAndSummary === 'function') {
-        window.calculateTotalPriceAndSummary();
-    }
-    
-    // Make the forceShowComponentTable function globally available
-    window.forceShowComponentTable = forceShowComponentTable;
-    
-    console.log('Both configuration tables should now be visible');
-    return true;
-}
+// forceShowComponentTable function removed
 
-// Add this function to the window load event
+// Add validation event handlers to components
 window.addEventListener('load', function() {
-    // Add event listeners to validate components and only show table when components are compatible
+    // Add event listeners to validate components 
     const dropdowns = ['cpu', 'mainboard', 'vga', 'ram', 'ssd', 'psu', 'case', 'cpuCooler'];
     
     // Validate all components on page load
@@ -4445,20 +4274,13 @@ window.addEventListener('load', function() {
         const dropdown = document.getElementById(id);
         if (dropdown) {
             dropdown.addEventListener('change', function() {
-                // Kiểm tra tương thích trước khi hiển thị bảng
+                // Validate components when changed
                 if (typeof window.validateComponentCompatibility === 'function') {
-                    const isValid = window.validateComponentCompatibility();
-                    
-                    // Chỉ hiển thị bảng nếu tất cả đều tương thích
-                    if (isValid) {
-                        setTimeout(forceShowComponentTable, 100); // Short delay to ensure other handlers run first
-                    }
+                    window.validateComponentCompatibility();
                 }
             });
         }
     }
-    
-    // Button removed
 });
                         
 document.addEventListener('DOMContentLoaded', function() {
@@ -4536,36 +4358,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     calculateTotalPriceAndSummary();
                 }
                 
-                // Show both config tables using forceShowComponentTable
-                if (typeof forceShowComponentTable === 'function') {
-                    forceShowComponentTable();
-                } else {
-                    // Fallback if forceShowComponentTable isn't available
-                    // 1. Show main config table
-                    const configTable = document.getElementById('config-table');
-                    if (configTable) {
-                        configTable.style.display = 'block';
-                        configTable.style.visibility = 'visible';
-                        configTable.scrollIntoView({ behavior: 'smooth' });
-                    }
-                    
-                    // 2. Show selected components section
-                    const selectedComponentsSection = document.getElementById('selected-components');
-                    if (selectedComponentsSection) {
-                        selectedComponentsSection.style.display = 'block';
-                        selectedComponentsSection.style.visibility = 'visible';
-                    }
-                    
-                    // 3. Show detailed configuration modal
-                    if (typeof window.showConfigDetailModal === 'function') {
-                        window.showConfigDetailModal();
-                    } else {
-                        // Direct fallback if showConfigDetailModal isn't available
-                        const summaryModal = document.getElementById('summary-modal');
-                        if (summaryModal) {
-                            summaryModal.style.display = 'block';
-                        }
-                    }
+                // Show config table and components
+                // 1. Show main config table
+                const configTable = document.getElementById('config-table');
+                if (configTable) {
+                    configTable.style.display = 'block';
+                    configTable.style.visibility = 'visible';
+                    configTable.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // 2. Show selected components section
+                const selectedComponentsSection = document.getElementById('selected-components');
+                if (selectedComponentsSection) {
+                    selectedComponentsSection.style.display = 'block';
+                    selectedComponentsSection.style.visibility = 'visible';
                 }
             }, 300);
         });
@@ -4585,157 +4391,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
                         
-// Hàm tạo modal elements nếu chưa tồn tại
+// Modal creation function removed
 function createModalElements() {
-    console.log('Creating modal elements');
-    
-    // Kiểm tra xem modal đã tồn tại chưa
-    if (document.getElementById('summary-modal')) return;
-    
-    // Tạo modal container
-    const summaryModal = document.createElement('div');
-    summaryModal.id = 'summary-modal';
-    summaryModal.className = 'modal';
-    summaryModal.style.display = 'none';
-    summaryModal.style.position = 'fixed';
-    summaryModal.style.zIndex = '9999';
-    summaryModal.style.left = '0';
-    summaryModal.style.top = '0';
-    summaryModal.style.width = '100%';
-    summaryModal.style.height = '100%';
-    summaryModal.style.overflow = 'auto';
-    summaryModal.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    
-    // Tạo modal content
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-    modalContent.style.backgroundColor = '#fff';
-    modalContent.style.margin = '50px auto';
-    modalContent.style.padding = '20px';
-    modalContent.style.width = '80%';
-    modalContent.style.maxWidth = '900px';
-    modalContent.style.borderRadius = '5px';
-    modalContent.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
-    
-    // Tạo modal header
-    const modalHeader = document.createElement('div');
-    modalHeader.className = 'modal-header';
-    modalHeader.style.borderBottom = '1px solid #eee';
-    modalHeader.style.padding = '10px 0';
-    modalHeader.style.marginBottom = '20px';
-    modalHeader.style.display = 'flex';
-    modalHeader.style.justifyContent = 'space-between';
-    modalHeader.style.alignItems = 'center';
-    
-    // Tạo tiêu đề
-    const modalTitle = document.createElement('h2');
-    modalTitle.innerHTML = '<i class="fas fa-clipboard-list"></i> Cấu hình chi tiết';
-    modalTitle.style.margin = '0';
-    modalTitle.style.fontSize = '24px';
-    modalTitle.style.color = '#333';
-    
-    // Tạo nút đóng
-    const closeButton = document.createElement('span');
-    closeButton.className = 'close-modal';
-    closeButton.innerHTML = '&times;';
-    closeButton.style.fontSize = '28px';
-    closeButton.style.fontWeight = 'bold';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.color = '#333';
-    
-    // Thêm sự kiện click cho nút đóng
-    closeButton.addEventListener('click', function() {
-        summaryModal.style.display = 'none';
-        // Đánh dấu là người dùng đã đóng modal
-        window.userClosedConfigModal = true;
-    });
-    
-    // Tạo modal body
-    const modalBody = document.createElement('div');
-    modalBody.className = 'modal-body';
-    
-    // Tạo container cho danh sách thành phần
-    const componentsList = document.createElement('div');
-    componentsList.id = 'modal-components-list';
-    
-    // Tạo container cho tổng giá
-    const totalPrice = document.createElement('div');
-    totalPrice.id = 'modal-total-price';
-    totalPrice.textContent = 'Tổng cộng: 0 VNĐ';
-    totalPrice.style.marginTop = '20px';
-    totalPrice.style.fontWeight = 'bold';
-    totalPrice.style.fontSize = '18px';
-    
-    // Tạo container cho hình ảnh xem trước
-    const imagePreview = document.createElement('div');
-    imagePreview.id = 'image-preview-container';
-    
-    // Tạo container cho các tùy chọn chia sẻ
-    const shareOptions = document.createElement('div');
-    shareOptions.className = 'share-options';
-    shareOptions.style.marginTop = '20px';
-    shareOptions.style.display = 'flex';
-    shareOptions.style.gap = '10px';
-    shareOptions.style.justifyContent = 'center';
-    
-    // Tạo các nút chia sẻ
-    const shareFacebook = document.createElement('button');
-    shareFacebook.id = 'share-facebook';
-    shareFacebook.className = 'share-button';
-    shareFacebook.innerHTML = '<i class="fab fa-facebook"></i> Chia sẻ Facebook';
-    shareFacebook.style.padding = '10px 15px';
-    shareFacebook.style.backgroundColor = '#3b5998';
-    shareFacebook.style.color = 'white';
-    shareFacebook.style.border = 'none';
-    shareFacebook.style.borderRadius = '5px';
-    shareFacebook.style.cursor = 'pointer';
-    
-    const copyLink = document.createElement('button');
-    copyLink.id = 'copy-link';
-    copyLink.className = 'share-button';
-    copyLink.innerHTML = '<i class="fas fa-link"></i> Sao chép liên kết';
-    copyLink.style.padding = '10px 15px';
-    copyLink.style.backgroundColor = '#607d8b';
-    copyLink.style.color = 'white';
-    copyLink.style.border = 'none';
-    copyLink.style.borderRadius = '5px';
-    copyLink.style.cursor = 'pointer';
-    
-    const downloadConfig = document.createElement('button');
-    downloadConfig.id = 'download-config';
-    downloadConfig.className = 'share-button luu-cau-hinh';
-    downloadConfig.innerHTML = '<i class="fas fa-download"></i> Tải cấu hình';
-    downloadConfig.style.padding = '10px 15px';
-    downloadConfig.style.backgroundColor = '#4caf50';
-    downloadConfig.style.color = 'white';
-    downloadConfig.style.border = 'none';
-    downloadConfig.style.borderRadius = '5px';
-    downloadConfig.style.cursor = 'pointer';
-    
-    // Xây dựng cấu trúc DOM
-    modalHeader.appendChild(modalTitle);
-    modalHeader.appendChild(closeButton);
-    
-    shareOptions.appendChild(shareFacebook);
-    shareOptions.appendChild(copyLink);
-    shareOptions.appendChild(downloadConfig);
-    
-    modalBody.appendChild(componentsList);
-    modalBody.appendChild(totalPrice);
-    modalBody.appendChild(imagePreview);
-    modalBody.appendChild(shareOptions);
-    
-    modalContent.appendChild(modalHeader);
-    modalContent.appendChild(modalBody);
-    
-    summaryModal.appendChild(modalContent);
-    
-    // Thêm modal vào body
-    document.body.appendChild(summaryModal);
-    
-    console.log('Modal elements created successfully');
-    
-    return summaryModal;
+    console.log('Modal creation has been removed');
+    // Return null to prevent errors in existing code
+    return null;
 }
                         
 // Thêm nút hiển thị bảng cấu hình chính ở cuối trang sau khi đã chọn các thành phần
@@ -4974,28 +4634,77 @@ window.validateComponentCompatibility = function() {
     
     // Hiển thị các thông báo lỗi
     if (errorMessages.length > 0) {
-        const container = document.querySelector('.components-grid');
-        if (container) {
-            errorMessages.forEach(message => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'compatibility-error';
-                msgDiv.innerHTML = `<strong>Lỗi tương thích:</strong> ${message}`;
-                msgDiv.style.color = '#e74c3c';
-                msgDiv.style.backgroundColor = '#fadbd8';
-                msgDiv.style.padding = '10px';
-                msgDiv.style.borderRadius = '5px';
-                msgDiv.style.margin = '10px 0';
-                msgDiv.style.fontWeight = 'bold';
-                msgDiv.style.borderLeft = '5px solid #e74c3c';
-                container.prepend(msgDiv);
-                
-                // Tự động xóa sau 10 giây
-                setTimeout(() => {
-                    msgDiv.style.transition = 'opacity 1s ease-out';
-                    msgDiv.style.opacity = '0';
-                    setTimeout(() => msgDiv.remove(), 1000);
-                }, 10000);
+        // Use the designated compatibility-alert section instead of creating new divs
+        const compatibilityAlert = document.getElementById('compatibility-alert');
+        const compatibilityMessage = document.getElementById('compatibility-message');
+        
+        if (compatibilityAlert && compatibilityMessage) {
+            // Show the alert
+            compatibilityAlert.classList.remove('hidden');
+            
+            // Set alert styling
+            compatibilityAlert.style.backgroundColor = '#fadbd8';
+            compatibilityAlert.style.border = '1px solid #e74c3c';
+            compatibilityAlert.style.borderLeft = '5px solid #e74c3c';
+            compatibilityAlert.style.borderRadius = '5px';
+            compatibilityAlert.style.padding = '10px 15px';
+            compatibilityAlert.style.margin = '15px 0';
+            compatibilityAlert.style.position = 'relative';
+            
+            // Set the message content
+            compatibilityMessage.innerHTML = '';
+            compatibilityMessage.style.color = '#c0392b';
+            compatibilityMessage.style.fontWeight = 'bold';
+            errorMessages.forEach((message, index) => {
+                const msgPara = document.createElement('p');
+                msgPara.innerHTML = message;
+                msgPara.style.margin = index > 0 ? '10px 0 0 0' : '0';
+                compatibilityMessage.appendChild(msgPara);
             });
+            
+            // Set up close button functionality
+            const closeButton = document.getElementById('close-alert');
+            if (closeButton) {
+                // Remove old event listeners
+                const newCloseButton = closeButton.cloneNode(true);
+                closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+                
+                // Add new event listener
+                newCloseButton.addEventListener('click', function() {
+                    compatibilityAlert.classList.add('hidden');
+                });
+            }
+        } else {
+            // Fallback to the old method if the compatibility-alert elements don't exist
+            const container = document.querySelector('.components-grid');
+            if (container) {
+                errorMessages.forEach(message => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'compatibility-error';
+                    msgDiv.innerHTML = `<strong>Lỗi tương thích:</strong> ${message}`;
+                    msgDiv.style.color = '#e74c3c';
+                    msgDiv.style.backgroundColor = '#fadbd8';
+                    msgDiv.style.padding = '10px';
+                    msgDiv.style.borderRadius = '5px';
+                    msgDiv.style.margin = '10px 0';
+                    msgDiv.style.fontWeight = 'bold';
+                    msgDiv.style.borderLeft = '5px solid #e74c3c';
+                    container.prepend(msgDiv);
+                    
+                    // Tự động xóa sau 10 giây
+                    setTimeout(() => {
+                        msgDiv.style.transition = 'opacity 1s ease-out';
+                        msgDiv.style.opacity = '0';
+                        setTimeout(() => msgDiv.remove(), 1000);
+                    }, 10000);
+                });
+            }
+        }
+    } else {
+        // Hide the alert if there are no errors
+        const compatibilityAlert = document.getElementById('compatibility-alert');
+        if (compatibilityAlert) {
+            compatibilityAlert.classList.add('hidden');
         }
     }
     
@@ -5435,95 +5144,163 @@ window.determineRamCompatibility = function(ram, mainboard) {
 // Expose the functions globally
 console.log("✅ CPU-Mainboard and RAM compatibility functions exposed globally");
                         
-// Function to force show configuration tables
-function forceShowConfigTables() {
-    try {
-        console.log('Force showing configuration tables');
+// forceShowConfigTables function removed
+                        
+function validateAllComponents() {
+    console.log('Validating all components');
+    
+    // Get all selected components
+    const cpu = document.getElementById('cpu');
+    const mainboard = document.getElementById('mainboard');
+    const vga = document.getElementById('vga');
+    const ram = document.getElementById('ram');
+    const ssd = document.getElementById('ssd');
+    const psu = document.getElementById('psu');
+    const caseElement = document.getElementById('case');
+    const cpuCooler = document.getElementById('cpuCooler');
+    
+    // Clear previous error messages
+    clearOldMessages();
+    resetBorderColors();
+    hideGreenSections();
+    
+    // Store error messages
+    const errorMessages = [];
+    
+    // Validate CPU and Mainboard compatibility
+    if (cpu && cpu.value && mainboard && mainboard.value) {
+        const cpuKey = cpu.value;
+        const mainboardKey = mainboard.value;
         
-        // List of table IDs and classes to check
-        const tableSelectors = [
-            '#component-table', 
-            '#configuration-table', 
-            '.config-table', 
-            '.component-table',
-            '#config-table',
-            'table'
-        ];
-        
-        // Apply display styles to all matching elements
-        tableSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            console.log(`Found ${elements.length} elements matching ${selector}`);
+        if (!checkSocketCompatibility(cpuKey, mainboardKey)) {
+            errorMessages.push(`<span style="color: #e74c3c; font-weight: bold;">❌ LỖI TƯƠNG THÍCH:</span> CPU ${window.cpuData[cpuKey].name} không tương thích với mainboard ${window.mainboardData[mainboardKey].name}. Socket CPU ${window.cpuData[cpuKey].socket || 'unknown'} không phù hợp với socket mainboard ${Array.isArray(window.mainboardData[mainboardKey].sockets) ? window.mainboardData[mainboardKey].sockets.join(', ') : window.mainboardData[mainboardKey].sockets || 'unknown'}.`);
             
-            elements.forEach(element => {
-                if (element) {
-                    element.style.display = 'table';
-                    element.style.visibility = 'visible';
-                    element.style.opacity = '1';
-                    
-                    // Also set any parent containers to visible
-                    let parent = element.parentElement;
-                    for (let i = 0; i < 5 && parent; i++) {
-                        parent.style.display = 'block';
-                        parent.style.visibility = 'visible';
-                        parent.style.opacity = '1';
-                        parent = parent.parentElement;
-                    }
+            // Highlight error elements
+            cpu.style.borderColor = '#e74c3c';
+            mainboard.style.borderColor = '#e74c3c';
+        }
+    }
+    
+    // Validate RAM and Mainboard compatibility
+    if (ram && ram.value && mainboard && mainboard.value) {
+        const ramKey = ram.value;
+        const mainboardKey = mainboard.value;
+        
+        const ramType = window.ramData[ramKey].memoryType;
+        const mainboardRamType = window.mainboardData[mainboardKey].memoryType;
+        
+        if (ramType !== mainboardRamType) {
+            errorMessages.push(`<span style="color: #e74c3c; font-weight: bold;">❌ LỖI TƯƠNG THÍCH:</span> RAM ${window.ramData[ramKey].name} (${ramType}) không tương thích với mainboard ${window.mainboardData[mainboardKey].name} (hỗ trợ ${mainboardRamType}).`);
+            
+            // Highlight error elements
+            ram.style.borderColor = '#e74c3c';
+            mainboard.style.borderColor = '#e74c3c';
+        }
+    }
+    
+    // Validate case and mainboard compatibility
+    if (caseElement && caseElement.value && mainboard && mainboard.value) {
+        const caseKey = caseElement.value;
+        const mainboardKey = mainboard.value;
+        
+        const caseFormFactor = window.caseData[caseKey].formFactor;
+        const mainboardFormFactor = window.mainboardData[mainboardKey].formFactor;
+        
+        // Check if case can fit the mainboard
+        if (!isFormFactorCompatible(caseFormFactor, mainboardFormFactor)) {
+            errorMessages.push(`<span style="color: #e74c3c; font-weight: bold;">❌ LỖI TƯƠNG THÍCH:</span> Case ${window.caseData[caseKey].name} (${caseFormFactor}) không phù hợp với mainboard ${window.mainboardData[mainboardKey].name} (${mainboardFormFactor}).`);
+            
+            // Highlight error elements
+            caseElement.style.borderColor = '#e74c3c';
+            mainboard.style.borderColor = '#e74c3c';
+        }
+    }
+    
+    // Helper function to check form factor compatibility
+    function isFormFactorCompatible(caseFormFactor, mainboardFormFactor) {
+        // ATX cases can fit ATX, Micro-ATX, and Mini-ITX
+        // Micro-ATX cases can fit Micro-ATX and Mini-ITX
+        // Mini-ITX cases can only fit Mini-ITX
+        
+        const formFactorRank = {
+            'ATX': 3,
+            'Micro-ATX': 2,
+            'Mini-ITX': 1
+        };
+        
+        // Convert to uppercase for case-insensitive comparison
+        const caseRank = formFactorRank[caseFormFactor.toUpperCase()] || formFactorRank[caseFormFactor] || 0;
+        const mbRank = formFactorRank[mainboardFormFactor.toUpperCase()] || formFactorRank[mainboardFormFactor] || 0;
+        
+        return caseRank >= mbRank;
+    }
+    
+    // Hiển thị các thông báo lỗi
+    if (errorMessages.length > 0) {
+        // Use the designated compatibility-alert section instead of creating new divs
+        const compatibilityAlert = document.getElementById('compatibility-alert');
+        const compatibilityMessage = document.getElementById('compatibility-message');
+        
+        if (compatibilityAlert && compatibilityMessage) {
+            // Show the alert
+            compatibilityAlert.classList.remove('hidden');
+            
+            // Set alert styling
+            compatibilityAlert.style.backgroundColor = '#fadbd8';
+            compatibilityAlert.style.border = '1px solid #e74c3c';
+            compatibilityAlert.style.borderLeft = '5px solid #e74c3c';
+            compatibilityAlert.style.borderRadius = '5px';
+            compatibilityAlert.style.padding = '15px 20px';
+            compatibilityAlert.style.margin = '15px 0 30px 0';
+            compatibilityAlert.style.position = 'relative';
+            compatibilityAlert.style.display = 'flex';
+            compatibilityAlert.style.alignItems = 'flex-start';
+            
+            // Set the message content
+            compatibilityMessage.innerHTML = '';
+            compatibilityMessage.style.color = '#c0392b';
+            compatibilityMessage.style.fontWeight = 'bold';
+            compatibilityMessage.style.flex = '1';
+            compatibilityMessage.style.marginLeft = '10px';
+            
+            // Add each error message
+            errorMessages.forEach((message, index) => {
+                const msgPara = document.createElement('p');
+                msgPara.innerHTML = message;
+                if (index > 0) {
+                    msgPara.style.marginTop = '10px';
                 }
+                compatibilityMessage.appendChild(msgPara);
             });
-        });
-        
-        // Force any config containers to be visible
-        const containerSelectors = [
-            '.table-container', 
-            '.table-responsive', 
-            '.component-selection-container', 
-            '.config-section',
-            '.modal-content',
-            '.modal-body'
-        ];
-        
-        containerSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(element => {
-                if (element) {
-                    element.style.display = 'block';
-                    element.style.visibility = 'visible';
-                    element.style.opacity = '1';
-                }
-            });
-        });
-        
-        // Simulate click on calculate button if needed
-        const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
-        calculateButtons.forEach(button => {
-            if (button && typeof button.click === 'function') {
-                console.log('Clicking calculate button:', button);
-                try {
-                    button.click();
-                } catch (err) {
-                    console.error('Error clicking calculate button:', err);
-                }
+            
+            // Add click handler to close button
+            const closeButton = document.getElementById('close-alert');
+            if (closeButton) {
+                closeButton.style.cursor = 'pointer';
+                closeButton.style.background = 'none';
+                closeButton.style.border = 'none';
+                closeButton.style.color = '#e74c3c';
+                closeButton.style.fontSize = '20px';
+                closeButton.style.paddingTop = '0';
+                
+                // Remove any existing event listeners
+                const newCloseButton = closeButton.cloneNode(true);
+                closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+                
+                // Add new event listener
+                newCloseButton.addEventListener('click', function() {
+                    compatibilityAlert.classList.add('hidden');
+                });
             }
-        });
-        
-        console.log('Force show configuration tables complete');
-    } catch (err) {
-        console.error('Error in forceShowConfigTables:', err);
+        } else {
+            console.error('Compatibility alert elements not found in the DOM');
+        }
+    } else {
+        // No errors, hide the alert if it exists
+        const compatibilityAlert = document.getElementById('compatibility-alert');
+        if (compatibilityAlert) {
+            compatibilityAlert.classList.add('hidden');
+        }
     }
 }
-
-// Add window function for external access
-window.forceShowConfigTables = forceShowConfigTables;
-
-// Run on load
-window.addEventListener('load', function() {
-    setTimeout(forceShowConfigTables, 1000);
-    setTimeout(forceShowConfigTables, 2500); 
-});
-
-// Run on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(forceShowConfigTables, 500);
-});
                         

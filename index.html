@@ -308,76 +308,7 @@
 </head>
 
 <body>
-    <!-- Add a button at the top of the page -->
-    <div style="position: fixed; top: 10px; left: 10px; z-index: 9999;">
-        <button id="force-show-tables" style="background-color: #ff5722; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Hiển thị cấu hình
-        </button>
-        <button id="toggle-debug" style="background-color: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px;">
-            Debug
-        </button>
-    </div>
 
-    <script>
-    // Add click handler to force show tables button
-    document.addEventListener('DOMContentLoaded', function() {
-        const forceShowButton = document.getElementById('force-show-tables');
-        if (forceShowButton) {
-            forceShowButton.addEventListener('click', function() {
-                // Find the configuration table
-                const configTable = document.querySelector('#config-table, .config-table');
-                if (configTable) {
-                    // Only make the table visible
-                    configTable.style.display = 'table';
-                    configTable.style.visibility = 'visible';
-                    configTable.style.opacity = '1';
-                    
-                    // Scroll to it
-                    configTable.scrollIntoView({behavior: 'smooth'});
-                }
-                
-                // Trigger calculate buttons if table not found
-                if (!configTable) {
-                    const calculateButtons = document.querySelectorAll('#calculate-btn, .calculate-btn, button[onclick*="showConfig"]');
-                    calculateButtons.forEach(button => {
-                        if (button && typeof button.click === 'function') {
-                            try {
-                                button.click();
-                            } catch (err) {}
-                        }
-                    });
-                }
-                
-                // Try calling showConfigDetailModal function to show detailed configuration
-                try {
-                    if (typeof window.showConfigDetailModal === 'function') {
-                        window.showConfigDetailModal();
-                    }
-                } catch (err) {
-                    console.error('Error calling showConfigDetailModal:', err);
-                }
-            });
-        }
-        
-        // Toggle debug panel visibility
-        const toggleDebugButton = document.getElementById('toggle-debug');
-        const debugHelper = document.getElementById('debug-helper');
-        
-        if (toggleDebugButton && debugHelper) {
-            // Initially hide debug panel
-            debugHelper.style.display = 'none';
-            
-            toggleDebugButton.addEventListener('click', function() {
-                if (debugHelper.style.display === 'none') {
-                    debugHelper.style.display = 'block';
-                    debugHelper(); // Update debug info immediately
-                } else {
-                    debugHelper.style.display = 'none';
-                }
-            });
-        }
-    });
-    </script>
 
     <header>
         <div class="logo-container">
@@ -878,49 +809,7 @@
                 </div>
             </section>
 
-            <section id="selected-components">
-                <div class="section-header">
-                    <i class="fas fa-list-check"></i>
-                    <h2>Linh kiện đã chọn</h2>
-                </div>
-                <div id="selected-components-list" class="selected-components-grid"></div>
-            </section>
-
-            <div id="compatibility-alert" class="compatibility-alert hidden">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div class="alert-message" id="compatibility-message"></div>
-                <button id="close-alert" class="close-alert"><i class="fas fa-times"></i></button>
-            </div>
-
-            <!-- Replace the existing summary-modal with this improved modal -->
-            
-
-            <section id="total-price" class="total-price">
-                <h2>Tổng Tiền Dự Kiến</h2>
-                <p>0 VNĐ</p>
-                <div class="price-breakdown">
-                    <button id="view-breakdown" class="view-breakdown-btn"><i class="fas fa-receipt"></i> Xem chi tiết</button>
-                </div>
-            </section>
-
-            <!-- New button to show configuration tables -->
-            <div style="text-align: center; margin: 20px 0;">
-                <button id="show-all-config-tables" style="background-color: #2196F3; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                    <i class="fas fa-table"></i> HIỂN THỊ BẢNG CẤU HÌNH CHI TIẾT
-                </button>
-            </div>
-
-            <div class="button-group">
-                <button type="button" class="action-button secondary-btn" id="reset-button">
-                    <i class="fas fa-redo"></i> Làm mới
-                </button>
-                <button type="button" class="action-button primary-btn" id="calculate-button">
-                    <i class="fas fa-clipboard-check"></i> XEM CHI TIẾT VÀ ĐÁNH GIÁ
-                </button>
-                <button type="button" class="action-button accent-btn luu-cau-hinh" id="save-button">
-                    <i class="fas fa-save"></i> Lưu cấu hình
-                </button>
-            </div>
+            <!-- SECTIONS REMOVED AS REQUESTED -->
             
             <!-- Bảng chi tiết cấu hình -->
             <div id="config-table" class="config-table" style="display:none; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
@@ -1227,51 +1116,29 @@
                 
                 // REMOVED: Don't hide the config table initially
                 
-                // Register event listener for the calculate button
+                // Configuration modal event handlers removed
                 const calculateButton = document.getElementById('calculate-button');
-                const summaryModal = document.getElementById('summary-modal');
-                
                 if (calculateButton) {
                     calculateButton.addEventListener('click', function() {
-                        console.log('Calculate button clicked - showing detailed configuration modal');
-                        // Reset closed state
-                        window.userClosedConfigModal = false;
-                        // Populate and display the detailed configuration modal
-                        if (typeof window.showConfigDetailModal === 'function') {
-                            window.showConfigDetailModal();
-                        } else if (summaryModal) {
-                            summaryModal.style.display = 'block';
+                        console.log('Calculate button clicked - updating configuration');
+                        // Only update the configuration table, no modal display
+                        if (typeof window.updateComponentTable === 'function') {
+                            window.updateComponentTable();
                         }
                     });
                 }
                 
-                // Add event handler for the show-config-details button
+                // Update the show-config-details button to just scroll to the config table
                 const showConfigDetailsButton = document.getElementById('show-config-details');
                 if (showConfigDetailsButton) {
                     showConfigDetailsButton.addEventListener('click', function() {
-                        console.log('Show details button clicked - displaying detailed configuration modal');
-                        if (typeof window.showConfigDetailModal === 'function') {
-                            window.showConfigDetailModal();
-                        } else if (summaryModal) {
-                            summaryModal.style.display = 'block';
+                        console.log('Show details button clicked - scrolling to configuration table');
+                        const configTable = document.getElementById('config-table');
+                        if (configTable) {
+                            configTable.scrollIntoView({ behavior: 'smooth' });
                         }
                     });
                 }
-                
-                // Add event handler for closing the modal
-                const closeModal = document.querySelector('.close-modal');
-                if (closeModal && summaryModal) {
-                    closeModal.addEventListener('click', function() {
-                        summaryModal.style.display = 'none';
-                    });
-                }
-                
-                // Close modal when clicking outside
-                window.addEventListener('click', function(event) {
-                    if (event.target == summaryModal) {
-                        summaryModal.style.display = 'none';
-                    }
-                });
                 
                 // Nếu sau 5 giây vẫn chưa nhận được sự kiện, thử kiểm tra dữ liệu trực tiếp
                 setTimeout(() => {
@@ -1584,62 +1451,7 @@
     })();
     </script>
 
-    <!-- Add a custom show button at the very top for config table -->
-    <div style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 9999;">
-        <button id="emergency-show-config" style="background-color: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
-            HIỆN BẢNG CẤU HÌNH
-        </button>
-    </div>
 
-    <script>
-    // Emergency show config button handler
-    document.addEventListener('DOMContentLoaded', function() {
-        const emergencyButton = document.getElementById('emergency-show-config');
-        if (emergencyButton) {
-            emergencyButton.addEventListener('click', function() {
-                // Aggressive approach to find and show config table
-                const configTables = document.querySelectorAll('table');
-                configTables.forEach(function(table) {
-                    // Make all tables visible as a last resort
-                    table.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
-                    
-                    // Force all parent elements visible
-                    let parent = table.parentElement;
-                    while (parent) {
-                        parent.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-                        parent = parent.parentElement;
-                    }
-                });
-                
-                // Also try to force config table container visible
-                const configContainer = document.querySelector('.config-table-container, .config-section, .config-container');
-                if (configContainer) {
-                    configContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-                }
-                
-                // Try to call all known show functions
-                if (typeof window.showConfigDetailModal === 'function') window.showConfigDetailModal();
-                if (typeof window.forceShowComponentTable === 'function') window.forceShowComponentTable();
-                if (typeof window.forceShowConfigTables === 'function') window.forceShowConfigTables();
-                if (typeof window.fixConfigTableDisplay === 'function') window.fixConfigTableDisplay();
-                
-                // Try to force the detailed config modal visible
-                const detailModal = document.getElementById('component-detail-modal');
-                if (detailModal) {
-                    detailModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-                    
-                    // Show all tables inside it
-                    const modalTables = detailModal.querySelectorAll('table');
-                    modalTables.forEach(function(table) {
-                        table.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important;';
-                    });
-                }
-                
-                console.log('EMERGENCY: Forced all tables visible');
-            });
-        }
-    });
-    </script>
 
     <!-- Script to automatically show modals on page load -->
     <script>
@@ -2081,74 +1893,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Script to ensure the modal displays properly -->
 <script>
-// Function to show the component detail modal
+// Configuration detail modal display script removed
+// This stub is kept to avoid breaking other code
 function showComponentDetailModal() {
-    const modal = document.getElementById('component-detail-modal');
-    if (modal) {
-        modal.style.display = 'block';
-        
-        // Create backdrop if it doesn't exist
-        if (!document.querySelector('.modal-backdrop')) {
-            const backdrop = document.createElement('div');
-            backdrop.className = 'modal-backdrop';
-            backdrop.style.position = 'fixed';
-            backdrop.style.top = '0';
-            backdrop.style.left = '0';
-            backdrop.style.width = '100%';
-            backdrop.style.height = '100%';
-            backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            backdrop.style.zIndex = '9999';
-            document.body.appendChild(backdrop);
-            
-            // Close modal when clicking on backdrop
-            backdrop.addEventListener('click', function() {
-                closeComponentDetailModal();
-            });
-        }
-    }
+    console.log('Configuration detail modal has been removed');
 }
 
-// Function to close the component detail modal
 function closeComponentDetailModal() {
-    const modal = document.getElementById('component-detail-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        
-        // Remove backdrop
-        const backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) {
-            backdrop.remove();
-        }
-    }
+    console.log('Configuration detail modal has been removed');
 }
 
-// Add event listeners for close buttons
+// Simplified event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Close button in modal
-    const closeBtn = document.querySelector('#component-detail-modal .close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeComponentDetailModal);
-    }
-    
-    // Connect to other buttons
+    // Connect to other buttons to just scroll to the config table
     const showConfigBtn = document.querySelector('#show-config-details');
     if (showConfigBtn) {
-        showConfigBtn.addEventListener('click', showComponentDetailModal);
+        showConfigBtn.addEventListener('click', function() {
+            const configTable = document.getElementById('config-table');
+            if (configTable) {
+                configTable.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
     }
     
-    const calculateBtn = document.querySelector('#calculate-button');
-    if (calculateBtn) {
-        calculateBtn.addEventListener('click', showComponentDetailModal);
-    }
-    
-    // Add global function
+    // Add global function stub
     window.showConfigDetailModal = showComponentDetailModal;
-    
-    // Improved button in the main interface
-    const showConfigButtonMain = document.querySelector('#show-all-config-tables, button[data-target="#configuration-detail-modal"]');
-    if (showConfigButtonMain) {
-        showConfigButtonMain.addEventListener('click', showComponentDetailModal);
-    }
 });
 </script>
 
@@ -2198,12 +1967,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </button>
 </div>
 
-<!-- Add alternate "HIỂN THÀNG CẤU HÌNH" red button like in the last screenshot -->
-<div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-    <button id="floating-config-btn" style="background-color: #e53935; color: white; border: none; padding: 8px 15px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-        HIỂN THÀNG CẤU HÌNH
-    </button>
-</div>
+<!-- FLOATING BUTTON REMOVED AS REQUESTED -->
 
 <script>
 // Connect the floating button
@@ -2565,12 +2329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<!-- Add a direct button to show the complete UI -->
-<div style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
-    <button id="show-full-ui-btn" style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-        HIỆN TẤT CẢ GIAO DIỆN
-    </button>
-</div>
+<!-- SHOW-FULL-UI BUTTON REMOVED AS REQUESTED -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -2716,72 +2475,7 @@ table {
 }
 </style>
 
-<!-- Add a script to ensure the component selection section is visible -->
-<script>
-// Force visible all important sections
-function forceVisibleSections() {
-    console.log('Forcing all sections to be visible');
-    
-    // Force config-table to be visible
-    const configTable = document.getElementById('config-table');
-    if (configTable) {
-        configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
-    }
-    
-    // Force all children of config-table to be visible
-    if (configTable) {
-        const children = configTable.querySelectorAll('*');
-        children.forEach(child => {
-            if (child.tagName === 'TABLE') {
-                child.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
-            } else if (child.tagName === 'TR') {
-                child.style.cssText = 'display: table-row !important; visibility: visible !important; opacity: 1 !important;';
-            } else if (child.tagName === 'TD' || child.tagName === 'TH') {
-                child.style.cssText = 'display: table-cell !important; visibility: visible !important; opacity: 1 !important; padding: 8px !important; border: 1px solid #ddd !important;';
-            } else if (child.tagName === 'TBODY' || child.tagName === 'THEAD') {
-                child.style.cssText = 'display: table-row-group !important; visibility: visible !important; opacity: 1 !important;';
-            } else if (child.classList.contains('flex-container') || 
-                       child.classList.contains('d-flex') ||
-                       child.style.display === 'flex') {
-                child.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
-            } else {
-                child.style.cssText = 'visibility: visible !important; opacity: 1 !important;';
-            }
-        });
-    }
-    
-    // Modal handling removed - we don't want to force the modal to be visible
-    
-    // Force all selection-section elements to be visible
-    document.querySelectorAll('.selection-section').forEach(section => {
-        section.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-    });
-}
 
-// Run immediately when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Run multiple times to ensure it works
-    forceVisibleSections();
-    setTimeout(forceVisibleSections, 1000);
-    setTimeout(forceVisibleSections, 2000);
-    setTimeout(forceVisibleSections, 3000);
-    
-    // Add a permanent button to force sections visible
-    const forceVisibleButton = document.createElement('button');
-    forceVisibleButton.innerHTML = 'HIỆN TẤT CẢ PHẦN';
-    forceVisibleButton.style.cssText = 'position: fixed !important; bottom: 80px !important; right: 20px !important; background-color: #e53935 !important; color: white !important; border: none !important; padding: 10px 15px !important; font-size: 14px !important; font-weight: bold !important; border-radius: 4px !important; cursor: pointer !important; box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important; z-index: 9999 !important;';
-    
-    forceVisibleButton.addEventListener('click', forceVisibleSections);
-    document.body.appendChild(forceVisibleButton);
-});
-
-// Also run on window load
-window.addEventListener('load', function() {
-    // Don't automatically run forceVisibleSections
-    // forceVisibleSections();
-    // setTimeout(forceVisibleSections, 1000);
-});
-</script>
 
 <!-- Additional CSS to ensure visibility -->
 <style>
@@ -2893,25 +2587,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Final script to force show configuration details -->
+<!-- Script for image handling -->
 <script>
-// Final force show configuration details
+// Handle image replacement for component icons
 window.addEventListener('load', function() {
-    // Create a force show button at the very top
-    const forceShowButton = document.createElement('button');
-    forceShowButton.innerHTML = '<i class="fas fa-table"></i> HIỆN BẢNG CẤU HÌNH NGAY';
-    forceShowButton.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #e53935; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 10000;';
-    
-    forceShowButton.addEventListener('click', function() {
-        // Remove self on click
-        this.remove();
-        
-        // Force show all important elements
-        forceVisibleSections();
-        
-        // Force replace all images with icons
-        document.querySelectorAll('img').forEach(img => {
+    // Replace broken images with icons based on component type
+    document.querySelectorAll('img').forEach(img => {
+        if (img.naturalWidth === 0) {
             const type = img.alt ? img.alt.toLowerCase() : '';
+            
             const iconClass = 
                 type.includes('cpu') ? 'fas fa-microchip' :
                 type.includes('mainboard') ? 'fas fa-server' :
@@ -2930,60 +2614,17 @@ window.addEventListener('load', function() {
             if (img.parentNode) {
                 img.parentNode.replaceChild(icon, img);
             }
-        });
-        
-        // Force component-detail-modal to be visible
-        const modal = document.getElementById('component-detail-modal');
-        if (modal) {
-            // Don't force visibility - let it be controlled by user interactions
-            // modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
-            
-            // Find modal content and set its style
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.cssText = 'position: relative !important; background-color: white !important; margin: 30px auto !important; padding: 0 !important; border-radius: 5px !important; max-width: 800px !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
-            }
         }
-        
-        // Highlight and scroll to the config table
-        const configTable = document.getElementById('config-table');
-        if (configTable) {
-            configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important; box-shadow: 0 0 20px rgba(76, 175, 80, 0.7) !important; border: 3px solid #4CAF50 !important;';
-            configTable.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        
-        // Execute any modal show functions that might exist
-        if (typeof showComponentDetailModal === 'function') {
-            showComponentDetailModal();
-        }
-        
-        // Also try to execute any other known function for showing tables
-        const possibleFunctions = [
-            'showConfigDetailModal',
-            'forceShowComponentTable',
-            'calculateTotalPriceAndSummary',
-            'showAllConfigTables',
-            'showConfigDetail'
-        ];
-        
-        possibleFunctions.forEach(funcName => {
-            if (typeof window[funcName] === 'function') {
-                try {
-                    window[funcName]();
-                } catch (e) {
-                    console.error(`Error executing ${funcName}:`, e);
-                }
-            }
-        });
     });
     
-    // Add to document
-    document.body.appendChild(forceShowButton);
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        forceShowButton.click();
-    }, 5000);
+    // Style modal content properly
+    const modal = document.getElementById('component-detail-modal');
+    if (modal) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.cssText = 'position: relative !important; background-color: white !important; margin: 30px auto !important; padding: 0 !important; border-radius: 5px !important; max-width: 800px !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
+        }
+    }
 });
 </script>
 
@@ -3054,3 +2695,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
