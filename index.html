@@ -997,7 +997,7 @@
                 <button id="close-alert" class="close-alert"><i class="fas fa-times"></i></button>
             </div>
 
-            <div id="summary-modal" class="modal">
+            <div id="summary-modal" class="modal" style="display:block">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2><i class="fas fa-clipboard-list"></i> Cấu hình chi tiết</h2>
@@ -1044,7 +1044,7 @@
             </div>
             
             <!-- Bảng chi tiết cấu hình -->
-            <div id="config-table" class="config-table" style="display:block; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
+            <div id="config-table" class="config-table" style="display:block; visibility:visible; margin: 20px auto; max-width: 90%; overflow-x: auto; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 8px;">
                 <h2 style="text-align: center; color: var(--primary-color); margin: 15px 0; font-size: 24px;"><i class="fas fa-clipboard-list"></i> BẢNG CHI TIẾT CẤU HÌNH MÁY TÍNH</h2>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
@@ -1590,6 +1590,7 @@
                     if (typeof window.forceShowComponentTable === 'function') {
                         window.forceShowComponentTable();
                     } else {
+                        console.error('forceShowComponentTable function not found, using fallback');
                         // Fallback if the function isn't available
                         // Show main config table
                         const configTable = document.getElementById('config-table');
@@ -1600,12 +1601,15 @@
                         }
                         
                         // Show the modal with detailed configuration
+                        const summaryModal = document.getElementById('summary-modal');
                         if (summaryModal) {
                             summaryModal.style.display = 'block';
                             
                             // Make sure modal content is updated
                             if (typeof window.showConfigDetailModal === 'function') {
                                 window.showConfigDetailModal();
+                            } else if (typeof window.calculateTotalPriceAndSummary === 'function') {
+                                window.calculateTotalPriceAndSummary();
                             }
                         }
                     }

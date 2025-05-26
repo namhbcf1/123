@@ -3426,20 +3426,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Hiển thị modal chi tiết cấu hình
     function showConfigDetailModal(configData) {
-        // Tìm các phần tử cần thiết
-        const modal = document.getElementById('summary-modal');
+        console.log("Showing config detail modal");
+        
+        // Ensure the modal exists before proceeding
+        let modal = document.getElementById('summary-modal');
+        if (!modal) {
+            console.log("Modal not found, creating it");
+            modal = createModalElements();
+        }
+        
         const modalContent = modal ? modal.querySelector('.modal-content') : null;
         const modalComponentsList = document.getElementById('modal-components-list');
         
         if (!modal || !modalContent) {
-            console.error('Modal elements not found');
+            console.error('Modal elements not found even after creation attempt');
             return;
         }
         
-        // Make sure modal is visible
+        // Đảm bảo modal hiển thị
         modal.style.display = 'block';
         
-        // Show config table if it exists
+        // Hiển thị bảng cấu hình nếu tồn tại
         const configTable = document.getElementById('config-table');
         if (configTable) {
             configTable.style.display = 'block';
@@ -3457,26 +3464,29 @@ document.addEventListener('DOMContentLoaded', function () {
             const cpuCooler = document.getElementById('cpuCooler');
             const psu = document.getElementById('psu');
             const caseComponent = document.getElementById('case');
+            const hdd = document.getElementById('hdd');
+            const monitor = document.getElementById('monitor');
             
             // Build HTML for modal components list
             let componentsHtml = '<table class="config-detail-table" style="width:100%; border-collapse: collapse;">';
             componentsHtml += `
                 <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>HÌNH ẢNH</th>
-                        <th>TÊN, MÃ, LOẠI LINH KIỆN</th>
-                        <th>ĐVT</th>
-                        <th>SỐ LƯỢNG</th>
-                        <th>ĐƠN GIÁ</th>
-                        <th>THÀNH TIỀN</th>
-                        <th>BẢO HÀNH</th>
-                        <th>GHI CHÚ</th>
+                    <tr style="background-color: #2196F3; color: white;">
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">STT</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">HÌNH ẢNH</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">TÊN, MÃ, LOẠI LINH KIỆN</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">ĐVT</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">SỐ LƯỢNG</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">ĐƠN GIÁ</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">THÀNH TIỀN</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">BẢO HÀNH</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">GHI CHÚ</th>
                     </tr>
                 </thead>
                 <tbody>
             `;
             
+            // ... rest of the function remains the same
             // Add components
             let totalPrice = 0;
             let index = 1;
@@ -3537,11 +3547,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 totalPrice += caseInfo.price;
             }
             
+            // HDD (optional)
+            if (hdd && hdd.value && window.hddData && window.hddData[hdd.value]) {
+                const hddInfo = window.hddData[hdd.value];
+                componentsHtml += addComponentRow(index++, 'HDD', hddInfo.name, hddInfo.price, hddInfo.image || 'image/hdd.png');
+                totalPrice += hddInfo.price;
+            }
+            
+            // Monitor (optional)
+            if (monitor && monitor.value && window.monitorData && window.monitorData[monitor.value]) {
+                const monitorInfo = window.monitorData[monitor.value];
+                componentsHtml += addComponentRow(index++, 'Màn hình', monitorInfo.name, monitorInfo.price, monitorInfo.image || 'image/monitor.png');
+                totalPrice += monitorInfo.price;
+            }
+            
             // Total row
             componentsHtml += `
-                <tr class="total-row">
-                    <td colspan="5" style="text-align: right; padding: 10px;"><strong>Tổng cộng</strong></td>
-                    <td colspan="4" style="text-align: right; padding: 10px; color: red; font-weight: bold;">${formatPrice(totalPrice)} VNĐ</td>
+                <tr class="total-row" style="background-color: #f5f5f5; font-weight: bold;">
+                    <td colspan="5" style="text-align: right; padding: 10px; border: 1px solid #ddd;"><strong>Tổng cộng</strong></td>
+                    <td colspan="4" style="text-align: right; padding: 10px; color: red; font-weight: bold; border: 1px solid #ddd;">${formatPrice(totalPrice)} VNĐ</td>
                 </tr>
             `;
             
@@ -3554,8 +3578,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const modalTotalPrice = document.getElementById('modal-total-price');
             if (modalTotalPrice) {
                 modalTotalPrice.textContent = `Tổng cộng: ${formatPrice(totalPrice)} VNĐ`;
+                modalTotalPrice.style.fontWeight = 'bold';
+                modalTotalPrice.style.color = 'red';
+                modalTotalPrice.style.fontSize = '18px';
+                modalTotalPrice.style.margin = '15px 0';
+                modalTotalPrice.style.textAlign = 'right';
             }
         }
+        
+        console.log('Modal displayed and populated successfully');
     }
     
     // Helper function to add a component row to the modal table
@@ -4304,6 +4335,7 @@ window.enhancedCheckSocketCompatibility = function(cpuKey, mainboardKey) {
 // Force show component table when user has selected components
 function forceShowComponentTable() {
     // Now enabled to show both configuration tables
+    console.log('Force showing both configuration tables');
     
     // 1. Show the main config table
     const configTable = document.getElementById('config-table');
@@ -4344,32 +4376,20 @@ function forceShowComponentTable() {
     // 4. Call the showConfigDetailModal function to update contents
     if (typeof window.showConfigDetailModal === 'function') {
         window.showConfigDetailModal();
+    } else {
+        console.error('showConfigDetailModal function not found');
     }
     
-    // 5. Update the configuration data in the main table
-    if (typeof window.updateComponentTable === 'function') {
-        const cpu = document.getElementById('cpu');
-        const mainboard = document.getElementById('mainboard');
-        const vga = document.getElementById('vga');
-        const ram = document.getElementById('ram');
-        const ssd = document.getElementById('ssd');
-        const psu = document.getElementById('psu');
-        const caseElement = document.getElementById('case');
-        const cpuCooler = document.getElementById('cpuCooler');
-        
-        // Get selected values
-        const cpuValue = cpu ? cpu.value : '';
-        const mbValue = mainboard ? mainboard.value : '';
-        const vgaValue = vga ? vga.value : '';
-        const ramValue = ram ? ram.value : '';
-        const ssdValue = ssd ? ssd.value : '';
-        const psuValue = psu ? psu.value : '';
-        const caseValue = caseElement ? caseElement.value : '';
-        const cpuCoolerValue = cpuCooler ? cpuCooler.value : '';
-        
-        // Update component table
-        window.updateComponentTable(cpuValue, mbValue, vgaValue, ramValue, ssdValue, psuValue, caseValue, cpuCoolerValue);
+    // 5. Update the configuration data in the main table if needed
+    if (typeof window.calculateTotalPriceAndSummary === 'function') {
+        window.calculateTotalPriceAndSummary();
     }
+    
+    // Make the forceShowComponentTable function globally available
+    window.forceShowComponentTable = forceShowComponentTable;
+    
+    console.log('Both configuration tables should now be visible');
+    return true;
 }
 
 // Add this function to the window load event

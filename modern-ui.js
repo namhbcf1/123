@@ -657,10 +657,14 @@ function fixConfigTableDisplay() {
     const gameGenre = document.getElementById('game-genre');
     const cpuType = document.getElementById('cpu-type');
     const budgetRange = document.getElementById('budget-range');
+    const showAllConfigTablesButton = document.getElementById('show-all-config-tables');
+    
+    console.log('Fixing config table display');
     
     // Force show config table immediately
     if (configTable) {
         configTable.style.display = 'block';
+        configTable.style.visibility = 'visible';
         
         // Add a highlight animation to make it more noticeable
         configTable.animate([
@@ -672,14 +676,67 @@ function fixConfigTableDisplay() {
             easing: 'ease-in-out',
             iterations: 3
         });
+        
+        console.log('Config table visibility enforced');
+    }
+    
+    // Make sure modal exists
+    if (!summaryModal && typeof window.createModalElements === 'function') {
+        console.log('Creating modal elements because they do not exist');
+        window.createModalElements();
+    }
+    
+    // Add stronger handler for show-all-config-tables button
+    if (showAllConfigTablesButton) {
+        showAllConfigTablesButton.addEventListener('click', function() {
+            console.log('Show all config tables button clicked in modern-ui.js');
+            
+            // Force show both configuration tables
+            if (typeof window.forceShowComponentTable === 'function') {
+                window.forceShowComponentTable();
+            } else {
+                console.error('forceShowComponentTable function not found, using fallback');
+                
+                // Show main config table
+                if (configTable) {
+                    configTable.style.display = 'block';
+                    configTable.style.visibility = 'visible';
+                    configTable.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Show the modal with detailed configuration
+                const modal = document.getElementById('summary-modal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    
+                    // Make sure modal content is updated
+                    if (typeof window.showConfigDetailModal === 'function') {
+                        window.showConfigDetailModal();
+                    } else if (typeof window.calculateTotalPriceAndSummary === 'function') {
+                        window.calculateTotalPriceAndSummary();
+                    }
+                } else if (typeof window.createModalElements === 'function') {
+                    const newModal = window.createModalElements();
+                    if (newModal) {
+                        newModal.style.display = 'block';
+                        if (typeof window.showConfigDetailModal === 'function') {
+                            window.showConfigDetailModal();
+                        }
+                    }
+                }
+            }
+        });
     }
     
     // Add default handler for calculate button
     if (calculateButton) {
         calculateButton.addEventListener('click', function() {
+            console.log('Calculate button clicked in modern-ui.js');
+            
             // Ensure the table is visible
             if (configTable) {
                 configTable.style.display = 'block';
+                configTable.style.visibility = 'visible';
                 
                 // Scroll to the table
                 setTimeout(() => {
@@ -698,158 +755,23 @@ function fixConfigTableDisplay() {
             }
             
             // Also show the modal popup
-            if (summaryModal) {
-                summaryModal.style.display = 'block';
-            }
-        });
-    }
-    
-    // Fix game selection issues
-    const gameCards = document.querySelectorAll('.game-card');
-    if (gameCards.length > 0 && gameGenre) {
-        gameCards.forEach(card => {
-            // Add enhanced click handler
-            card.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            const modal = document.getElementById('summary-modal');
+            if (modal) {
+                modal.style.display = 'block';
                 
-                // Get game ID from data attribute
-                const gameId = this.getAttribute('data-game');
-                if (!gameId) return;
-                
-                // Visually update the selection
-                gameCards.forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                // Update dropdown value
-                gameGenre.value = gameId;
-                
-                // Force dispatch change event
-                gameGenre.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // Show config table after game selection
-                if (configTable) {
-                    setTimeout(() => {
-                        configTable.style.display = 'block';
-                        configTable.scrollIntoView({behavior: 'smooth'});
-                    }, 300);
+                // Make sure modal content is updated
+                if (typeof window.showConfigDetailModal === 'function') {
+                    window.showConfigDetailModal();
                 }
-                
-                console.log(`Game selected: ${gameId}`);
-            });
-        });
-    }
-    
-    // Make sure modal can be closed
-    const closeModalBtn = document.querySelector('.close-modal');
-    if (closeModalBtn && summaryModal) {
-        closeModalBtn.addEventListener('click', function() {
-            summaryModal.style.display = 'none';
-        });
-        
-        // Also close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === summaryModal) {
-                summaryModal.style.display = 'none';
-            }
-        });
-    }
-    
-    // Check if all main components are selected and show table automatically
-    function checkAndShowConfigTable() {
-        if (!configTable) return;
-        
-        // Make table visible regardless of selections
-        configTable.style.display = 'block';
-        
-        // Check if we have main components selected
-        const mainComponentDropdowns = [
-            document.getElementById('cpu'),
-            document.getElementById('mainboard'),
-            document.getElementById('vga'),
-            document.getElementById('ram')
-        ];
-        
-        const allMainComponentsSelected = mainComponentDropdowns.filter(Boolean).some(dropdown => 
-            dropdown && dropdown.value && dropdown.value !== ''
-        );
-        
-        if (allMainComponentsSelected) {
-            // Scroll to the table with a small delay
-            setTimeout(() => {
-                configTable.scrollIntoView({behavior: 'smooth'});
-            }, 300);
-        }
-    }
-    
-    // Always check if table should be shown after page load
-    window.addEventListener('load', function() {
-        setTimeout(checkAndShowConfigTable, 1000);
-    });
-    
-    // Listen for changes to all component dropdowns
-    const componentDropdowns = document.querySelectorAll('.dropdown');
-    componentDropdowns.forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            checkAndShowConfigTable();
-        });
-    });
-    
-    // Listen for game genre changes
-    if (gameGenre) {
-        gameGenre.addEventListener('change', function() {
-            // Always show the table when game changes
-            if (configTable) {
-                configTable.style.display = 'block';
-                setTimeout(() => {
-                    configTable.scrollIntoView({behavior: 'smooth'});
-                }, 300);
-            }
-        });
-    }
-    
-    // Create observer to watch for table content changes
-    const tableObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList' || mutation.type === 'attributes') {
-                // Table content has changed, ensure it's visible
-                if (configTable && configTable.style.display === 'none') {
-                    configTable.style.display = 'block';
+            } else if (typeof window.createModalElements === 'function') {
+                const newModal = window.createModalElements();
+                if (newModal) {
+                    newModal.style.display = 'block';
+                    if (typeof window.showConfigDetailModal === 'function') {
+                        window.showConfigDetailModal();
+                    }
                 }
             }
-        });
-    });
-    
-    // Start observing the table
-    if (configTable) {
-        tableObserver.observe(configTable, { 
-            childList: true, 
-            subtree: true, 
-            attributes: true, 
-            attributeFilter: ['style', 'class'] 
-        });
-    }
-    
-    // Add direct click handler for auto-select button
-    const autoSelectButton = document.getElementById('manual-auto-select');
-    if (autoSelectButton && configTable) {
-        autoSelectButton.addEventListener('click', function() {
-            // Force show the config table
-            configTable.style.display = 'block';
-            
-            // Scroll to it
-            setTimeout(() => {
-                configTable.scrollIntoView({behavior: 'smooth'});
-            }, 300);
-        });
-    }
-    
-    // Add direct handler for show-config-details button
-    const showConfigDetailsButton = document.getElementById('show-config-details');
-    if (showConfigDetailsButton && summaryModal) {
-        showConfigDetailsButton.addEventListener('click', function() {
-            // Show modal popup
-            summaryModal.style.display = 'block';
         });
     }
 }
