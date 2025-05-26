@@ -1,0 +1,18 @@
+title: BUILD PC TRUONG PHAT COMPUTER
+description: Tự xây dựng cấu hình PC với công cụ TRUONG PHAT COMPUTER
+baseurl: ""
+url: ""
+theme: jekyll-theme-minimal
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - package.json
+  - package-lock.json
+  - README.md
+  - .gitignore
+sass:
+  style: compressed
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap 

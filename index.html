@@ -1,10 +1,16 @@
+---
+layout: default
+title: BUILD PC TRUONG PHAT COMPUTER - Chọn Linh Kiện Máy Tính
+description: Tự xây dựng cấu hình PC với công cụ TRUONG PHAT COMPUTER - Chọn linh kiện máy tính phù hợp nhu cầu và ngân sách
+---
+
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <!-- Cache buster script -->
-    <script src="clear-cache.js"></script>
+    <script src="{{ site.baseurl }}/clear-cache.js"></script>
     <!-- Đặt viewport cố định để hiển thị giao diện PC trên mọi thiết bị -->
     <meta name="viewport" content="width=1024">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,18 +35,18 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     
     <!-- Preload CSS quan trọng -->
-    <link rel="preload" href="./buildsan.css" as="style">
-    <link rel="preload" href="./styles.css" as="style">
+    <link rel="preload" href="{{ site.baseurl }}/buildsan.css" as="style">
+    <link rel="preload" href="{{ site.baseurl }}/styles.css" as="style">
     
     <!-- Thư viện XLSX - Nhất định phải tải trước các script khác -->
     <script src="https://cdn.sheetjs.com/xlsx-0.18.9/package/dist/xlsx.full.min.js" defer></script>
     
     <!-- CSS chính -->
-    <link rel="stylesheet" href="./buildsan.css">
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/buildsan.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/styles.css">
     
     <!-- Fix CSS để giải quyết vấn đề giao diện -->
-    <link rel="stylesheet" href="./fix-styles.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/fix-styles.css">
     
     <!-- Chỉ load font awesome icons cần thiết thay vì toàn bộ -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
@@ -49,14 +55,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
     <!-- Progressive Web App -->
-    <link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="{{ site.baseurl }}/manifest.json">
     <meta name="theme-color" content="#222831">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="./images/icon-192.png">
+    <link rel="apple-touch-icon" href="{{ site.baseurl }}/images/icon-192.png">
     
     <!-- CSS cho modal/popup -->
-    <link rel="stylesheet" href="./modal-styles.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ site.baseurl }}/modal-styles.css" media="print" onload="this.media='all'">
     
     <!-- Animation library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" media="print" onload="this.media='all'">
@@ -245,15 +251,15 @@
                         console.log('Existing service worker unregistered');
                     }
                     
-                    // Lấy đường dẫn cơ sở của ứng dụng (để hỗ trợ GitHub Pages)
-                    const basePath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+                    // Get the site baseUrl for GitHub Pages compatibility
+                    const baseUrl = '{{ site.baseurl }}';
                     
                     // Add cache-busting parameter to service worker URL
-                    const swUrl = `./service-worker.js?v=${new Date().getTime()}`;
+                    const swUrl = `${baseUrl}/service-worker.js?v=${new Date().getTime()}`;
                     
                     // Register the service worker with updated URL
                     const registration = await navigator.serviceWorker.register(swUrl, { 
-                        scope: basePath,
+                        scope: baseUrl || '/',
                         updateViaCache: 'none' // Prevent cache for updates
                     });
                     
@@ -265,6 +271,20 @@
                     console.error('Lỗi đăng ký Service Worker:', error);
                 }
             });
+        }
+        
+        // Fix for GitHub Pages base path
+        function getBaseUrl() {
+            // For GitHub Pages, use site.baseurl
+            return '{{ site.baseurl }}' || '';
+        }
+        
+        // Use this helper function to construct correct URLs for assets
+        function assetUrl(path) {
+            const baseUrl = getBaseUrl();
+            // Remove leading slash if it exists
+            const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+            return `${baseUrl}/${cleanPath}`;
         }
         
         // Đảm bảo rằng các bảng cấu hình hiển thị đúng
@@ -1202,15 +1222,15 @@
     </div>
 
     <!-- Script for the interactive PC builder -->
-    <script src="./components-data.js"></script>
-    <script src="./buildsan.js" type="module"></script>
+    <script src="{{ site.baseurl }}/components-data.js"></script>
+    <script src="{{ site.baseurl }}/buildsan.js" type="module"></script>
     <!-- Script for Excel export functionality -->
-    <script src="./auto-export-config.js"></script>
+    <script src="{{ site.baseurl }}/auto-export-config.js"></script>
     <!-- Script for enhanced auto-config functionality -->
-    <script src="./auto-config-helper.js"></script>
+    <script src="{{ site.baseurl }}/auto-config-helper.js"></script>
     
     <!-- Tải trình tải dữ liệu linh kiện -->
-    <script src="./import-loader.js" type="module"></script>
+    <script src="{{ site.baseurl }}/import-loader.js" type="module"></script>
     
     <script>
         // Load required libraries
@@ -1486,8 +1506,8 @@
     });
     </script>
 
-    <script src="./service-worker.js"></script>
-    <script src="./component-compatibility.js"></script>
+    <script src="{{ site.baseurl }}/service-worker.js"></script>
+    <script src="{{ site.baseurl }}/component-compatibility.js"></script>
     
     <!-- Script to handle the show all config tables button -->
     <script>

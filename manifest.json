@@ -1,22 +1,23 @@
 {
-  "name": "TRUONG PHAT COMPUTER PC Builder",
-  "short_name": "TPC Builder",
+  "name": "BUILD PC TRUONG PHAT COMPUTER",
+  "short_name": "PC Builder",
+  "description": "Tự xây dựng cấu hình PC với công cụ TRUONG PHAT COMPUTER",
   "start_url": "./index.html",
+  "scope": ".",
   "display": "standalone",
-  "background_color": "#222831",
-  "theme_color": "#222831",
-  "description": "Xây dựng cấu hình PC chuyên nghiệp, tối ưu cho mọi thiết bị.",
+  "background_color": "#ffffff",
+  "theme_color": "#0053b4",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "./images/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
       "src": "./images/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "512x512"
     }
-  ],
-  "scope": "./"
+  ]
 } 

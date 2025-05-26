@@ -1,128 +1,165 @@
+---
+layout: default
+title: Test Page - GitHub Pages
+---
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Components Data Test</title>
+    <title>Test Page - GitHub Pages</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Roboto', Arial, sans-serif;
             line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
         }
         h1 {
-            color: #0066cc;
+            color: #0053b4;
+            border-bottom: 2px solid #0053b4;
+            padding-bottom: 10px;
         }
-        .component-section {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
+        .info {
+            background-color: #f0f8ff;
+            border-left: 4px solid #0053b4;
             padding: 15px;
-            border-radius: 5px;
+            margin: 20px 0;
         }
-        h2 {
-            margin-top: 0;
-            color: #333;
+        .success {
+            background-color: #f0fff0;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .error {
+            background-color: #fff0f0;
+            border-left: 4px solid #e53935;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
         }
-        li {
-            margin-bottom: 5px;
-            padding: 5px;
-            background-color: #f5f5f5;
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
             border-radius: 3px;
+            font-family: monospace;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0d8aee;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>Components Data Test</h1>
+    <h1>GitHub Pages Test</h1>
     
-    <div class="component-section">
-        <h2>VGA Components</h2>
-        <ul id="vga-list"></ul>
+    <div class="info">
+        <p>This page tests the functionality of your GitHub Pages setup. If you can see this page, Jekyll is processing correctly.</p>
     </div>
     
-    <div class="component-section">
-        <h2>RAM Components</h2>
-        <ul id="ram-list"></ul>
+    <h2>Configuration Values</h2>
+    <table>
+        <tr>
+            <th>Setting</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>site.baseurl</td>
+            <td><code id="baseurl">{{ site.baseurl }}</code></td>
+        </tr>
+        <tr>
+            <td>site.url</td>
+            <td><code id="url">{{ site.url }}</code></td>
+        </tr>
+        <tr>
+            <td>Current Path</td>
+            <td><code id="path"></code></td>
+        </tr>
+        <tr>
+            <td>Repository Name</td>
+            <td><code id="repo"></code></td>
+        </tr>
+    </table>
+    
+    <div class="success" id="success-message">
+        <p><strong>Success!</strong> GitHub Pages is working correctly.</p>
     </div>
     
-    <div class="component-section">
-        <h2>SSD Components</h2>
-        <ul id="ssd-list"></ul>
+    <div class="error" id="error-message">
+        <p><strong>Warning:</strong> There might be issues with your GitHub Pages setup. Check the configuration values above.</p>
     </div>
     
-    <div class="component-section">
-        <h2>Case Components</h2>
-        <ul id="case-list"></ul>
-    </div>
+    <button id="test-button">Test Service Worker</button>
+    <div id="sw-result" class="info" style="display: none;"></div>
     
-    <div class="component-section">
-        <h2>CPU Cooler Components</h2>
-        <ul id="cpuCooler-list"></ul>
-    </div>
-    
-    <div class="component-section">
-        <h2>PSU Components</h2>
-        <ul id="psu-list"></ul>
-    </div>
-
-    <script src="components-data.js"></script>
     <script>
-        // Function to display component data
-        function displayComponentData() {
-            // Display VGA components
-            const vgaList = document.getElementById('vga-list');
-            Object.keys(vgaData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${vgaData[key].name} - ${vgaData[key].price.toLocaleString()} VND`;
-                vgaList.appendChild(li);
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current path
+            document.getElementById('path').textContent = window.location.pathname;
             
-            // Display RAM components
-            const ramList = document.getElementById('ram-list');
-            Object.keys(ramData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${ramData[key].name} - ${ramData[key].price.toLocaleString()} VND`;
-                ramList.appendChild(li);
-            });
+            // Try to determine repository name
+            const pathSegments = window.location.pathname.split('/');
+            const repoName = pathSegments.length > 1 ? pathSegments[1] : 'Not detected';
+            document.getElementById('repo').textContent = repoName;
             
-            // Display SSD components
-            const ssdList = document.getElementById('ssd-list');
-            Object.keys(ssdData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${ssdData[key].name} - ${ssdData[key].price.toLocaleString()} VND`;
-                ssdList.appendChild(li);
-            });
+            // Check if baseurl is set correctly
+            const baseurl = document.getElementById('baseurl').textContent.trim();
+            if (repoName !== 'Not detected' && baseurl === '') {
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('success-message').style.display = 'none';
+            }
             
-            // Display Case components
-            const caseList = document.getElementById('case-list');
-            Object.keys(caseData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${caseData[key].name} - ${caseData[key].price.toLocaleString()} VND`;
-                caseList.appendChild(li);
+            // Test Service Worker
+            document.getElementById('test-button').addEventListener('click', function() {
+                const resultDiv = document.getElementById('sw-result');
+                resultDiv.style.display = 'block';
+                
+                if ('serviceWorker' in navigator) {
+                    resultDiv.innerHTML = '<p>Checking service worker registration...</p>';
+                    
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        if (registrations.length > 0) {
+                            resultDiv.innerHTML = '<p><strong>Success!</strong> Service Worker is registered with scope: ' + 
+                                registrations[0].scope + '</p>';
+                        } else {
+                            resultDiv.innerHTML = '<p><strong>Notice:</strong> No Service Worker is currently registered. ' + 
+                                'Try visiting the main page first.</p>';
+                        }
+                    }).catch(function(error) {
+                        resultDiv.innerHTML = '<p><strong>Error:</strong> ' + error.message + '</p>';
+                    });
+                } else {
+                    resultDiv.innerHTML = '<p><strong>Error:</strong> Service Workers are not supported in this browser.</p>';
+                }
             });
-            
-            // Display CPU Cooler components
-            const cpuCoolerList = document.getElementById('cpuCooler-list');
-            Object.keys(cpuCoolerData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${cpuCoolerData[key].name} - ${cpuCoolerData[key].price.toLocaleString()} VND`;
-                cpuCoolerList.appendChild(li);
-            });
-            
-            // Display PSU components
-            const psuList = document.getElementById('psu-list');
-            Object.keys(psuData).forEach(key => {
-                const li = document.createElement('li');
-                li.textContent = `${key}: ${psuData[key].name} - ${psuData[key].price.toLocaleString()} VND`;
-                psuList.appendChild(li);
-            });
-        }
-        
-        // Run when the page loads
-        window.onload = displayComponentData;
+        });
     </script>
 </body>
 </html> 

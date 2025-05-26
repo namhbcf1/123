@@ -1,20 +1,33 @@
-const CACHE_NAME = 'pc-builder-cache-v3';
-const STATIC_CACHE = 'tpc-static-cache-v3';
-const DYNAMIC_CACHE = 'tpc-dynamic-cache-v3';
+const CACHE_NAME = 'pc-builder-cache-v4';
+const STATIC_CACHE = 'tpc-static-cache-v4';
+const DYNAMIC_CACHE = 'tpc-dynamic-cache-v4';
+
+// Get the repository name for GitHub Pages
+const getRepoName = () => {
+  const pathArray = location.pathname.split('/');
+  // If on GitHub Pages, the first segment after the domain will be the repo name
+  return pathArray.length > 1 ? `/${pathArray[1]}` : '';
+};
+
+// Add repo name to paths for GitHub Pages compatibility
+const repoName = self.location.pathname.split('/')[1] || '';
+const repoPrefix = repoName ? `/${repoName}` : '';
 
 // Danh sách tài nguyên tĩnh cần cache ngay khi cài đặt
 const STATIC_ASSETS = [
-  './',
-  './styles.css',
-  './buildsan.css',
-  './modal-styles.css',
-  './buildsan.js',
-  './enums.js',
-  './modal-handler.js',
-  './component-connector.js',
-  './manifest.json',
-  './images/icon-192.png',
-  './components-data.js'
+  `${repoPrefix}/`,
+  `${repoPrefix}/index.html`,
+  `${repoPrefix}/styles.css`,
+  `${repoPrefix}/buildsan.css`,
+  `${repoPrefix}/modal-styles.css`,
+  `${repoPrefix}/buildsan.js`,
+  `${repoPrefix}/enums.js`,
+  `${repoPrefix}/modal-handler.js`,
+  `${repoPrefix}/component-connector.js`,
+  `${repoPrefix}/manifest.json`,
+  `${repoPrefix}/images/icon-192.png`,
+  `${repoPrefix}/components-data.js`,
+  `${repoPrefix}/clear-cache.js`
 ];
 
 // Danh sách domain cần cache
@@ -60,13 +73,17 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // Skip cross-origin requests
-  if (!url.origin.includes(self.location.hostname)) {
-    return;
+  // Check if it's an asset from our own origin - adjust for GitHub Pages
+  const isOwnHost = url.hostname === self.location.hostname;
+  if (!isOwnHost && !CACHE_DOMAINS.some(domain => url.hostname.includes(domain))) {
+    return; // Skip non-cacheable cross-origin requests
   }
   
   // Always get the latest HTML from network
-  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {
+  if (url.pathname.endsWith('.html') || 
+      url.pathname === '/' || 
+      url.pathname === `${repoPrefix}/` || 
+      url.pathname === repoPrefix) {
     event.respondWith(
       fetch(event.request)
         .catch(() => caches.match(event.request))
@@ -99,11 +116,16 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // Kiểm tra xem URL có phải là tài nguyên tĩnh cần cache không
+  // Check if the request is for a static asset (with GitHub Pages prefix handling)
+  const requestPath = url.pathname.startsWith(repoPrefix) 
+    ? url.pathname.substring(repoPrefix.length) 
+    : url.pathname;
+    
   const isStaticAsset = STATIC_ASSETS.some(asset => {
-    // Chuyển đổi địa chỉ tương đối thành đường dẫn
-    const assetPath = new URL(asset, self.location.origin).pathname;
-    return url.pathname.endsWith(assetPath) || url.pathname.includes(assetPath);
+    const assetPath = asset.startsWith(repoPrefix) 
+      ? asset.substring(repoPrefix.length) 
+      : asset;
+    return requestPath === assetPath || requestPath.includes(assetPath);
   });
 
   // Chiến lược cache-first cho tài nguyên tĩnh
@@ -133,14 +155,10 @@ self.addEventListener('activate', event => {
         })
       );
     }).then(() => {
-      // Clear the current caches to ensure fresh content
-      return Promise.all([
-        caches.delete(STATIC_CACHE),
-        caches.delete(DYNAMIC_CACHE)
-      ]);
+      // Take control of all clients
+      return self.clients.claim();
     })
   );
-  return self.clients.claim();
 });
 
 // Chiến lược cache-first (ưu tiên cache)
