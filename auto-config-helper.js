@@ -21,7 +21,7 @@ function updateDropdownEnhanced(id, value) {
     const optionsText = Array.from(dropdown.options)
         .map(opt => `${opt.value} (${opt.text})`)
         .join(', ');
-    console.log(`Available options for ${id}: ${optionsText}`);
+    // console.log(`Available options for ${id}: ${optionsText}`);
 
     // Tìm option phù hợp
     let foundOption = false;
@@ -34,7 +34,7 @@ function updateDropdownEnhanced(id, value) {
         if (option.value && option.value.toLowerCase() === valueToSearch) {
             optionToSelect = option;
             foundOption = true;
-            console.log(`Found exact value match for ${id}: ${option.text}`);
+            // console.log(`Found exact value match for ${id}: ${option.text}`);
             break;
         }
     }
@@ -46,7 +46,7 @@ function updateDropdownEnhanced(id, value) {
             if (option.text && option.text.toLowerCase() === valueToSearch) {
                 optionToSelect = option;
                 foundOption = true;
-                console.log(`Found exact text match for ${id}: ${option.text}`);
+                // console.log(`Found exact text match for ${id}: ${option.text}`);
                 break;
             }
         }
@@ -61,7 +61,7 @@ function updateDropdownEnhanced(id, value) {
                 (option.text && option.text.toLowerCase().includes(valueToSearch))) {
                 optionToSelect = option;
                 foundOption = true;
-                console.log(`Found partial match for ${id}: ${option.text} (searched for ${value})`);
+                // console.log(`Found partial match for ${id}: ${option.text} (searched for ${value})`);
                 break;
             }
         }
@@ -83,7 +83,7 @@ function updateDropdownEnhanced(id, value) {
             if (matchingKeywords.length > 0) {
                 optionToSelect = option;
                 foundOption = true;
-                console.log(`Found keyword match for ${id}: ${option.text} (matched keywords: ${matchingKeywords.join(', ')})`);
+                // console.log(`Found keyword match for ${id}: ${option.text} (matched keywords: ${matchingKeywords.join(', ')})`);
                 break;
             }
         }
@@ -96,7 +96,7 @@ function updateDropdownEnhanced(id, value) {
             if (!option.disabled && option.value && option.value !== "null" && option.value !== "") {
                 optionToSelect = option;
                 foundOption = true;
-                console.log(`Using first available option for ${id}: ${option.text}`);
+                // console.log(`Using first available option for ${id}: ${option.text}`);
                 break;
             }
         }
@@ -115,9 +115,9 @@ function updateDropdownEnhanced(id, value) {
             // Kích hoạt sự kiện change để cập nhật giao diện
             const event = new Event('change', { bubbles: true });
             dropdown.dispatchEvent(event);
-            console.log(`Updated ${id} dropdown to: ${optionToSelect.text}`);
+            // console.log(`Updated ${id} dropdown to: ${optionToSelect.text}`);
         } else {
-            console.log(`${id} dropdown already set to: ${optionToSelect.text}`);
+            // console.log(`${id} dropdown already set to: ${optionToSelect.text}`);
         }
         
         return true;
@@ -137,7 +137,7 @@ function updateDropdownEnhanced(id, value) {
         };
         
         if (defaultSelections[id]) {
-            console.log(`Selecting default option for ${id}: ${defaultSelections[id].text}`);
+            // console.log(`Selecting default option for ${id}: ${defaultSelections[id].text}`);
             dropdown.value = defaultSelections[id].value;
             const event = new Event('change', { bubbles: true });
             dropdown.dispatchEvent(event);
@@ -255,7 +255,7 @@ function autoSelectConfigEnhanced(gameId, budget, cpuType) {
                 };
             });
             
-            console.log('Created default Intel configurations');
+            // console.log('Created default Intel configurations');
         }
         
         if (typeof window.amdConfigs === 'undefined') {
@@ -288,7 +288,7 @@ function autoSelectConfigEnhanced(gameId, budget, cpuType) {
                 };
             });
             
-            console.log('Created default AMD configurations');
+            // console.log('Created default AMD configurations');
         }
     } catch (error) {
         console.error('Error initializing configurations:', error);

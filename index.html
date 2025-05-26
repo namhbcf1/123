@@ -1827,6 +1827,169 @@
         }, 2000); // Wait for 2 seconds after load
     });
     </script>
+
+    <!-- Add this script to ensure configuration tables are always visible -->
+    <script>
+    // Auto-show configuration tables and fix component images
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show configuration tables after the page has loaded
+        setTimeout(function() {
+            // Force show config-table
+            var configTable = document.getElementById('config-table');
+            if (configTable) {
+                configTable.style.display = 'table';
+                configTable.style.visibility = 'visible';
+                configTable.style.opacity = '1';
+            }
+            
+            // Show component selection section
+            var componentSection = document.getElementById('component-selection');
+            if (componentSection) {
+                componentSection.style.display = 'block';
+                componentSection.style.visibility = 'visible';
+                componentSection.style.opacity = '1';
+            }
+            
+            // Show selected components list
+            var selectedComponents = document.getElementById('selected-components');
+            if (selectedComponents) {
+                selectedComponents.style.display = 'block';
+                selectedComponents.style.visibility = 'visible';
+                selectedComponents.style.opacity = '1';
+            }
+            
+            // Fix component images by replacing with Font Awesome icons
+            var imageCells = {
+                'cpu-image': 'fas fa-microchip',
+                'mainboard-image': 'fas fa-server',
+                'vga-image': 'fas fa-tv',
+                'ram-image': 'fas fa-memory',
+                'ssd-image': 'fas fa-hdd',
+                'cpu-cooler-image': 'fas fa-wind',
+                'psu-image': 'fas fa-bolt',
+                'case-image': 'fas fa-cube',
+                'hdd-image': 'fas fa-hdd',
+                'monitor-image': 'fas fa-desktop'
+            };
+            
+            // Replace each image cell with Font Awesome icon
+            Object.keys(imageCells).forEach(function(cellId) {
+                var cell = document.getElementById(cellId);
+                if (cell) {
+                    cell.innerHTML = '<i class="' + imageCells[cellId] + '" style="font-size: 32px; color: #0053b4;"></i>';
+                }
+            });
+            
+            // Show configuration detail modal
+            if (typeof showComponentDetailModal === 'function') {
+                showComponentDetailModal();
+            }
+        }, 1000);
+    });
+
+    // Fix for the linter error by using var declaration and separating statements
+    function forceVisibleSections() {
+        // Fix: Use var instead of const and split the declaration from assignment
+        var modal;
+        modal = document.getElementById('component-detail-modal');
+        
+        if (modal) {
+            modal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+        }
+        
+        // Show the rest of the important sections
+        var sections = [
+            'component-selection',
+            'additional-selection',
+            'selected-components',
+            'config-table',
+            'total-price'
+        ];
+        
+        sections.forEach(function(id) {
+            var section = document.getElementById(id);
+            if (section) {
+                section.style.display = 'block';
+                section.style.visibility = 'visible';
+                section.style.opacity = '1';
+            }
+        });
+    }
+
+    // Call the function when the page loads
+    window.addEventListener('load', forceVisibleSections);
+    </script>
+
+    <!-- Additional button to force show all configuration tables -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button id="show-full-config" style="background-color: #e53935; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+            <i class="fas fa-eye"></i> HIỆN TẤT CẢ BẢNG CẤU HÌNH
+        </button>
+    </div>
+
+    <script>
+    // Add click handler for the show-full-config button
+    document.addEventListener('DOMContentLoaded', function() {
+        var showFullConfigBtn = document.getElementById('show-full-config');
+        if (showFullConfigBtn) {
+            showFullConfigBtn.addEventListener('click', function() {
+                // Show config table
+                var configTable = document.getElementById('config-table');
+                if (configTable) {
+                    configTable.style.display = 'table';
+                    configTable.style.visibility = 'visible';
+                    configTable.style.opacity = '1';
+                    configTable.scrollIntoView({behavior: 'smooth'});
+                }
+                
+                // Show component selection
+                var componentSelection = document.getElementById('component-selection');
+                if (componentSelection) {
+                    componentSelection.style.display = 'block';
+                    componentSelection.style.visibility = 'visible';
+                    componentSelection.style.opacity = '1';
+                }
+                
+                // Show component detail modal
+                var modal = document.getElementById('component-detail-modal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    modal.style.visibility = 'visible';
+                    modal.style.opacity = '1';
+                }
+                
+                // Replace images with Font Awesome icons
+                var imageCells = {
+                    'cpu-image': 'fas fa-microchip',
+                    'mainboard-image': 'fas fa-server',
+                    'vga-image': 'fas fa-tv',
+                    'ram-image': 'fas fa-memory',
+                    'ssd-image': 'fas fa-hdd',
+                    'cpu-cooler-image': 'fas fa-wind',
+                    'psu-image': 'fas fa-bolt',
+                    'case-image': 'fas fa-cube',
+                    'hdd-image': 'fas fa-hdd',
+                    'monitor-image': 'fas fa-desktop'
+                };
+                
+                // Replace each image cell with Font Awesome icon
+                Object.keys(imageCells).forEach(function(cellId) {
+                    var cell = document.getElementById(cellId);
+                    if (cell) {
+                        cell.innerHTML = '<i class="' + imageCells[cellId] + '" style="font-size: 32px; color: #0053b4;"></i>';
+                    }
+                });
+                
+                // Try to use any available show config function
+                if (typeof showComponentDetailModal === 'function') {
+                    showComponentDetailModal();
+                } else if (typeof showConfigDetailModal === 'function') {
+                    showConfigDetailModal();
+                }
+            });
+        }
+    });
+    </script>
 </body>
 
 </html>

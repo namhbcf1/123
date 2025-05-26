@@ -842,47 +842,136 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function updateTableImage(cellId, imageSrc, componentType) {
-    const cell = document.getElementById(cellId);
-    if (!cell) return;
-    
-    // Clear existing content
-    cell.innerHTML = '';
-    
-    // Default placeholder images (data URLs for common components)
-    const defaultImages = {
-        'CPU': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHJ4PSIyIiByeT0iMiI+PC9yZWN0PjxyZWN0IHg9IjkiIHk9IjkiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiPjwvcmVjdD48bGluZSB4MT0iOSIgeTE9IjEiIHgyPSI5IiB5Mj0iNCIgc3Ryb2tlPSIjNDQ0Ij48L2xpbmU+PGxpbmUgeDE9IjE1IiB5MT0iMSIgeDI9IjE1IiB5Mj0iNCIgc3Ryb2tlPSIjNDQ0Ij48L2xpbmU+PGxpbmUgeDE9IjkiIHkxPSIyMCIgeDI9IjkiIHkyPSIyMyIgc3Ryb2tlPSIjNDQ0Ij48L2xpbmU+PGxpbmUgeDE9IjE1IiB5MT0iMjAiIHgyPSIxNSIgeTI9IjIzIiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMjAiIHkxPSI5IiB4Mj0iMjMiIHkyPSI5IiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMjAiIHkxPSIxNCIgeDI9IjIzIiB5Mj0iMTQiIHN0cm9rZT0iIzQ0NCI+PC9saW5lPjxsaW5lIHgxPSIxIiB5MT0iOSIgeDI9IjQiIHkyPSI5IiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMSIgeTE9IjE0IiB4Mj0iNCIgeTI9IjE0IiBzdHJva2U9IiM0NDQiPjwvbGluZT48L3N2Zz4=',
-        'RAM': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIyIiB5PSI2IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiByeT0iMSI+PC9yZWN0PjxsaW5lIHgxPSI2IiB5MT0iNiIgeDI9IjYiIHkyPSIxOCIgc3Ryb2tlPSIjNDQ0Ij48L2xpbmU+PGxpbmUgeDE9IjEwIiB5MT0iNiIgeDI9IjEwIiB5Mj0iMTgiIHN0cm9rZT0iIzQ0NCI+PC9saW5lPjxsaW5lIHgxPSIxNCIgeTE9IjYiIHgyPSIxNCIgeTI9IjE4IiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMTgiIHkxPSI2IiB4Mj0iMTgiIHkyPSIxOCIgc3Ryb2tlPSIjNDQ0Ij48L2xpbmU+PC9zdmc+',
-        'Mainboard': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxIiByeT0iMSI+PC9yZWN0Pjx0ZXh0IHg9IjEyIiB5PSIxNCIgZm9udC1zaXplPSI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDQ0Ij5NQJPC9yZXh0PjxjaXJjbGUgY3g9IjciIGN5PSI3IiByPSIyIiBzdHJva2U9IiM0NDQiPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjE3IiBjeT0iNyIgcj0iMiIgc3Ryb2tlPSIjNDQ0Ij48L2NpcmNsZT48Y2lyY2xlIGN4PSI3IiBjeT0iMTciIHI9IjIiIHN0cm9rZT0iIzQ0NCI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMTciIGN5PSIxNyIgcj0iMiIgc3Ryb2tlPSIjNDQ0Ij48L2NpcmNsZT48L3N2Zz4=',
-        'VGA': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIyIiB5PSI2IiB3aWR0aD0iMTgiIGhlaWdodD0iMTIiIHJ4PSIxIiByeT0iMSI+PC9yZWN0PjxjaXJjbGUgY3g9IjE3IiBjeT0iMTIiIHI9IjIiIHN0cm9rZT0iIzQ0NCI+PC9jaXJjbGU+PGxpbmUgeDE9IjYiIHkxPSI2IiB4Mj0iNiIgeTI9IjMiIHN0cm9rZT0iIzQ0NCI+PC9saW5lPjxsaW5lIHgxPSI5IiB5MT0iNiIgeDI9IjkiIHkyPSIzIiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMTIiIHkxPSI2IiB4Mj0iMTIiIHkyPSIzIiBzdHJva2U9IiM0NDQiPjwvbGluZT48L3N2Zz4=',
-        'PSU': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSI0IiB5PSI2IiB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHJ4PSIxIiByeT0iMSI+PC9yZWN0Pjx0ZXh0IHg9IjEyIiB5PSIxNCIgZm9udC1zaXplPSI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDQ0Ij5QU1U8L3RleHQ+PGxpbmUgeDE9IjE2IiB5MT0iNiIgeDI9IjE2IiB5Mj0iMTAiIHN0cm9rZT0iIzQ0NCI+PC9saW5lPjxsaW5lIHgxPSIxMyIgeTE9IjYiIHgyPSIxMyIgeTI9IjEwIiBzdHJva2U9IiM0NDQiPjwvbGluZT48L3N2Zz4=',
-        'SSD': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSI0IiB5PSI4IiB3aWR0aD0iMTYiIGhlaWdodD0iOCIgcng9IjEiIHJ5PSIxIj48L3JlY3Q+PHRleHQgeD0iMTIiIHk9IjEzIiBmb250LXNpemU9IjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM0NDQiPlNTRDwvdGV4dD48bGluZSB4MT0iMiIgeTE9IjEyIiB4Mj0iNCIgeTI9IjEyIiBzdHJva2U9IiM0NDQiPjwvbGluZT48bGluZSB4MT0iMjAiIHkxPSIxMiIgeDI9IjIyIiB5Mj0iMTIiIHN0cm9rZT0iIzQ0NCI+PC9saW5lPjwvc3ZnPg==',
-        'Case': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSI0IiB5PSIzIiB3aWR0aD0iMTYiIGhlaWdodD0iMTgiIHJ4PSIxIiByeT0iMSI+PC9yZWN0PjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI1IiBoZWlnaHQ9IjMiPjwvcmVjdD48cmVjdCB4PSI2IiB5PSIxMSIgd2lkdGg9IjEyIiBoZWlnaHQ9IjgiPjwvcmVjdD48L3N2Zz4=',
-        'Component': 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHJ4PSIyIiByeT0iMiI+PC9yZWN0Pjx0ZXh0IHg9IjEyIiB5PSIxNCIgZm9udC1zaXplPSI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDQ0Ij5QQzwvdGV4dD48L3N2Zz4='
+// Replace images with Font Awesome icons in component tables
+function replaceImagesWithIcons() {
+    // Image cells in the config table and their corresponding Font Awesome icon classes
+    const imageMappings = {
+        'cpu-image': 'fas fa-microchip',
+        'mainboard-image': 'fas fa-server',
+        'vga-image': 'fas fa-tv',
+        'ram-image': 'fas fa-memory',
+        'ssd-image': 'fas fa-hdd',
+        'cpu-cooler-image': 'fas fa-wind',
+        'psu-image': 'fas fa-bolt',
+        'case-image': 'fas fa-cube',
+        'hdd-image': 'fas fa-hdd',
+        'monitor-image': 'fas fa-desktop'
     };
     
-    if (!imageSrc) {
-        // Show placeholder if no image source provided
-        const defaultImage = defaultImages[componentType] || defaultImages['Component'];
-        cell.innerHTML = `<img src="${defaultImage}" alt="${componentType || 'Component'}" style="max-width:100px;max-height:100px;display:block;margin:0 auto;">`;
-        return;
+    // Replace each image cell with an icon
+    Object.entries(imageMappings).forEach(([cellId, iconClass]) => {
+        const cell = document.getElementById(cellId);
+        if (cell) {
+            cell.innerHTML = `<i class="${iconClass}" style="font-size: 32px; color: #0053b4;"></i>`;
+        }
+    });
+    
+    // Also replace images in the modal
+    const modal = document.getElementById('component-detail-modal');
+    if (modal) {
+        // CPU
+        const cpuCell = modal.querySelector('tr:nth-child(1) td:nth-child(2)');
+        if (cpuCell) cpuCell.innerHTML = '<i class="fas fa-microchip" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // Mainboard
+        const mainboardCell = modal.querySelector('tr:nth-child(2) td:nth-child(2)');
+        if (mainboardCell) mainboardCell.innerHTML = '<i class="fas fa-server" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // VGA
+        const vgaCell = modal.querySelector('tr:nth-child(3) td:nth-child(2)');
+        if (vgaCell) vgaCell.innerHTML = '<i class="fas fa-tv" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // RAM
+        const ramCell = modal.querySelector('tr:nth-child(4) td:nth-child(2)');
+        if (ramCell) ramCell.innerHTML = '<i class="fas fa-memory" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // SSD
+        const ssdCell = modal.querySelector('tr:nth-child(5) td:nth-child(2)');
+        if (ssdCell) ssdCell.innerHTML = '<i class="fas fa-hdd" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // PSU
+        const psuCell = modal.querySelector('tr:nth-child(6) td:nth-child(2)');
+        if (psuCell) psuCell.innerHTML = '<i class="fas fa-bolt" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // Case
+        const caseCell = modal.querySelector('tr:nth-child(7) td:nth-child(2)');
+        if (caseCell) caseCell.innerHTML = '<i class="fas fa-cube" style="font-size: 32px; color: #0053b4;"></i>';
+        
+        // Cooler
+        const coolerCell = modal.querySelector('tr:nth-child(8) td:nth-child(2)');
+        if (coolerCell) coolerCell.innerHTML = '<i class="fas fa-wind" style="font-size: 32px; color: #0053b4;"></i>';
+    }
+}
+
+// Ensure the component table is visible
+function ensureComponentTableVisible() {
+    // Show the config-table
+    const configTable = document.getElementById('config-table');
+    if (configTable) {
+        configTable.style.cssText = 'display: table !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; border-collapse: collapse !important;';
     }
     
-    // Create and configure the image
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.alt = componentType || 'Component image';
-    img.style.maxWidth = '100px';
-    img.style.maxHeight = '100px';
-    img.style.display = 'block';
-    img.style.margin = '0 auto';
+    // Show the component selection section
+    const componentSelection = document.getElementById('component-selection');
+    if (componentSelection) {
+        componentSelection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+    }
     
-    // Set up error handler with fallback
-    img.onerror = function() {
-        console.warn(`Image not found: ${imageSrc}. Using placeholder.`);
-        const defaultImage = defaultImages[componentType] || defaultImages['Component'];
-        cell.innerHTML = `<img src="${defaultImage}" alt="${componentType || 'Component'}" style="max-width:100px;max-height:100px;display:block;margin:0 auto;">`;
+    // Show the detail modal
+    const detailModal = document.getElementById('component-detail-modal');
+    if (detailModal) {
+        detailModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
+        
+        // Find modal dialog and set its style
+        const modalDialog = detailModal.querySelector('.modal-dialog');
+        if (modalDialog) {
+            modalDialog.style.cssText = 'margin: 30px auto !important; max-width: 800px !important; background: white !important; border-radius: 5px !important; overflow: hidden !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
+        }
+    }
+    
+    // Run after a short delay to ensure icons are applied
+    setTimeout(replaceImagesWithIcons, 100);
+}
+
+// Add this to the document ready function
+document.addEventListener('DOMContentLoaded', function() {
+    // Replace console.log with a no-op function for less verbose output
+    const originalConsoleLog = console.log;
+    console.log = function(...args) {
+        // Only log critical messages, filter out verbose ones
+        const message = args.join(' ');
+        if (message.includes('ERROR') || 
+            message.includes('CRITICAL') || 
+            message.includes('IMPORTANT') ||
+            message.includes('✅')) {
+            originalConsoleLog.apply(console, args);
+        }
     };
     
-    cell.appendChild(img);
-} 
+    // Add event listener to the calculate button
+    const calculateButton = document.getElementById('calculate-button');
+    if (calculateButton) {
+        calculateButton.addEventListener('click', function() {
+            ensureComponentTableVisible();
+        });
+    }
+    
+    // Add event listener to the show-config-details button
+    const showConfigDetailsButton = document.getElementById('show-config-details');
+    if (showConfigDetailsButton) {
+        showConfigDetailsButton.addEventListener('click', function() {
+            ensureComponentTableVisible();
+        });
+    }
+    
+    // Enhance all buttons with HIỆN or HIỂN THỊ in their text
+    document.querySelectorAll('button').forEach(button => {
+        const buttonText = button.textContent || button.innerText;
+        if (buttonText.includes('HIỆN') || buttonText.includes('HIỂN THỊ')) {
+            button.addEventListener('click', ensureComponentTableVisible);
+        }
+    });
+    
+    // Run when the page is fully loaded
+    setTimeout(ensureComponentTableVisible, 1000);
+}); 
