@@ -3464,8 +3464,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Hiển thị modal chi tiết cấu hình
     function showConfigDetailModal(configData) {
-        // Completely disable this function to hide the modal
-        return; // Early return prevents modal display
+        // Modal display is now enabled
+        const modal = document.querySelector('.modal');
+        const modalContent = modal ? modal.querySelector('.modal-content') : null;
+        
+        if (!modal || !modalContent) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
+        // Make sure modal is visible
+        modal.style.display = 'block';
+        
+        // Show config table if it exists
+        const configTable = document.getElementById('config-table');
+        if (configTable) {
+            configTable.style.display = 'block';
+        }
     }
 
     // Đảm bảo window.showConfigDetailModal luôn tham chiếu đến hàm mới nhất
@@ -4196,8 +4211,16 @@ window.enhancedCheckSocketCompatibility = function(cpuKey, mainboardKey) {
 
 // Force show component table when user has selected components
 function forceShowComponentTable() {
-    // Completely disable this function to prevent force-showing the table
-    return; // Early return prevents table display
+    // Now enabled to show the configuration table
+    const configTable = document.getElementById('config-table');
+    if (configTable) {
+        configTable.style.display = 'block';
+    }
+    
+    // Also try to show the modal with detail configuration
+    if (typeof window.showConfigDetailModal === 'function') {
+        window.showConfigDetailModal();
+    }
 }
 
 // Add this function to the window load event
@@ -4235,8 +4258,40 @@ window.addEventListener('load', function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Tạo nút hiển thị bảng cấu hình chi tiết
     function createShowConfigButton() {
-        // Completely disable this function to remove the button
-        return; // Early return prevents button creation
+        // Now enabled to create the configuration button
+        const button = document.createElement('button');
+        button.id = 'show-config-detail-button';
+        button.className = 'btn btn-primary';
+        button.innerHTML = '<i class="fas fa-clipboard-list"></i> Hiển thị bảng cấu hình chi tiết';
+        button.style.marginTop = '20px';
+        button.style.marginBottom = '20px';
+        button.style.display = 'block';
+        button.style.width = '100%';
+        
+        // Add click event to show the configuration table
+        button.addEventListener('click', function() {
+            // Reset the closed state
+            window.userClosedConfigModal = false;
+            
+            // Show the configuration table
+            if (typeof window.showConfigDetailModal === 'function') {
+                window.showConfigDetailModal();
+            }
+        });
+        
+        // Find a good place to append the button
+        const componentsArea = document.querySelector('.components-selection') || 
+                             document.querySelector('.components-grid') || 
+                             document.querySelector('.component-container');
+        
+        if (componentsArea) {
+            componentsArea.appendChild(button);
+        } else {
+            // Fallback - add to the end of the body
+            document.body.appendChild(button);
+        }
+        
+        return button;
     }
     
     // Tạo nút khi trang đã tải xong

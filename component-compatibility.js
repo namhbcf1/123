@@ -2,28 +2,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Enhanced component compatibility module loaded');
     
-    // Hide configuration display buttons and modals
-    function hideConfigurationDisplayElements() {
-        const elementsToHide = [
-            '#show-config-detail-button',
-            '.config-table',
-            '#summary-modal',
-            '#modal-components-list',
-            '#calculate-button',
-            '#config-table',
-            '.modal'
-        ];
-        
-        elementsToHide.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(element => {
-                element.style.display = 'none';
-            });
-        });
-        
-        console.log('Configuration display elements hidden');
-    }
-    
     // Ensure strict compatibility between components
     function setupStrictComponentCompatibility() {
         // Get all dropdowns
@@ -61,6 +39,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Run initialization
-    hideConfigurationDisplayElements();
     setupStrictComponentCompatibility();
 }); 
