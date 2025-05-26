@@ -3,10 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- Cache buster script -->
+    <script src="clear-cache.js"></script>
     <!-- Đặt viewport cố định để hiển thị giao diện PC trên mọi thiết bị -->
     <meta name="viewport" content="width=1024">
-    <!-- Meta tags tối ưu hiệu suất -->
-    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Cache-Control" content="max-age=31536000, immutable">
     <meta name="description" content="Tự xây dựng cấu hình PC với công cụ TRUONG PHAT COMPUTER - Chọn linh kiện máy tính phù hợp nhu cầu và ngân sách">
     
@@ -235,17 +236,34 @@
     <script>
         // Đăng ký Service Worker nếu trình duyệt hỗ trợ
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Lấy đường dẫn cơ sở của ứng dụng (để hỗ trợ GitHub Pages)
-                const basePath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
-                
-                navigator.serviceWorker.register('./service-worker.js', { scope: basePath })
-                    .then(registration => {
-                        console.log('Service Worker đã đăng ký thành công:', registration);
-                    })
-                    .catch(error => {
-                        console.error('Lỗi đăng ký Service Worker:', error);
+            window.addEventListener('load', async () => {
+                try {
+                    // Unregister any existing service workers first
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('Existing service worker unregistered');
+                    }
+                    
+                    // Lấy đường dẫn cơ sở của ứng dụng (để hỗ trợ GitHub Pages)
+                    const basePath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+                    
+                    // Add cache-busting parameter to service worker URL
+                    const swUrl = `./service-worker.js?v=${new Date().getTime()}`;
+                    
+                    // Register the service worker with updated URL
+                    const registration = await navigator.serviceWorker.register(swUrl, { 
+                        scope: basePath,
+                        updateViaCache: 'none' // Prevent cache for updates
                     });
+                    
+                    console.log('Service Worker đã đăng ký thành công:', registration);
+                    
+                    // Force update check immediately
+                    registration.update();
+                } catch (error) {
+                    console.error('Lỗi đăng ký Service Worker:', error);
+                }
             });
         }
         
@@ -2393,9 +2411,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add a button to show selected components in the main UI
     const addShowComponentsButton = function() {
-        if (document.getElementById('show-selected-components-btn')) return;
-        
-        // BUTTON REMOVED AS REQUESTED
+        // Function completely disabled
+        return;
     };
     
     // Remove the button adding function
@@ -2801,5 +2818,60 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+</script>
+
+<!-- This script runs immediately to remove unwanted elements -->
+<script>
+// This script runs immediately to remove unwanted elements
+(function() {
+    // Function to remove unwanted elements
+    function removeUnwantedElements() {
+        // List of IDs to remove
+        const elementsToRemove = [
+            'selected-components',
+            'compatibility-alert',
+            'total-price',
+            'show-all-config-tables',
+            'floating-config-btn',
+            'show-full-ui-btn',
+            'show-selected-components-btn'
+        ];
+        
+        // Remove elements by ID
+        elementsToRemove.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                console.log('Removing element:', id);
+                element.remove();
+            }
+        });
+        
+        // Remove elements by selector
+        const selectorsToRemove = [
+            'div.tooltip-container', 
+            'div[style*="position: fixed"]',
+            'div[style*="text-align: center; margin: 20px 0px"] button#show-selected-components-btn'
+        ];
+        
+        selectorsToRemove.forEach(selector => {
+            document.querySelectorAll(selector).forEach(element => {
+                console.log('Removing element by selector:', selector);
+                element.remove();
+            });
+        });
+    }
+    
+    // Run immediately
+    removeUnwantedElements();
+    
+    // Also run after DOM content loaded
+    document.addEventListener('DOMContentLoaded', removeUnwantedElements);
+    
+    // Also run after window load
+    window.addEventListener('load', removeUnwantedElements);
+    
+    // Run periodically to catch any dynamically added elements
+    setInterval(removeUnwantedElements, 1000);
+})();
 </script>
 

@@ -1,11 +1,10 @@
-const CACHE_NAME = 'pc-builder-cache-v1';
-const STATIC_CACHE = 'tpc-static-cache-v2';
-const DYNAMIC_CACHE = 'tpc-dynamic-cache-v2';
+const CACHE_NAME = 'pc-builder-cache-v3';
+const STATIC_CACHE = 'tpc-static-cache-v3';
+const DYNAMIC_CACHE = 'tpc-dynamic-cache-v3';
 
 // Danh sách tài nguyên tĩnh cần cache ngay khi cài đặt
 const STATIC_ASSETS = [
   './',
-  './index.html',
   './styles.css',
   './buildsan.css',
   './modal-styles.css',
@@ -15,7 +14,6 @@ const STATIC_ASSETS = [
   './component-connector.js',
   './manifest.json',
   './images/icon-192.png',
-  './images/icon-512.png',
   './components-data.js'
 ];
 
@@ -42,6 +40,9 @@ const safeCacheAdd = async (cache, url) => {
 
 // Cài đặt service worker
 self.addEventListener('install', event => {
+  // Force activation of the new service worker
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -60,7 +61,16 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // Skip cross-origin requests
-  if (!url.origin.startsWith(self.location.origin)) {
+  if (!url.origin.includes(self.location.hostname)) {
+    return;
+  }
+  
+  // Always get the latest HTML from network
+  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
   
@@ -113,12 +123,21 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
+          // Delete all caches except the current ones
+          if (cacheName !== CACHE_NAME && 
+              cacheName !== STATIC_CACHE && 
+              cacheName !== DYNAMIC_CACHE) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // Clear the current caches to ensure fresh content
+      return Promise.all([
+        caches.delete(STATIC_CACHE),
+        caches.delete(DYNAMIC_CACHE)
+      ]);
     })
   );
   return self.clients.claim();
