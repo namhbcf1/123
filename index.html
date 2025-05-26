@@ -1208,13 +1208,6 @@
         </div>
     </div>
 
-    <!-- Modal dialog for configuration details -->
-    <div class="modal">
-        <div class="modal-content">
-            <!-- Modal content will be dynamically inserted here -->
-        </div>
-    </div>
-
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
@@ -1361,48 +1354,28 @@
                 
                 if (calculateButton) {
                     calculateButton.addEventListener('click', function() {
-                        // Check if any components are selected
-                        const componentIds = ['cpu', 'mainboard', 'ram', 'vga', 'ssd', 'cpuCooler', 'psu', 'case', 'hdd', 'monitor'];
-                        let anyComponentSelected = false;
-                        
-                        for (const id of componentIds) {
-                            const select = document.getElementById(id);
-                            if (select && select.value) {
-                                anyComponentSelected = true;
-                                break;
-                            }
-                        }
-                        
-                        if (anyComponentSelected) {
-                            // If component-connector.js has loaded our function
-                            if (typeof window.updateConfigTableImages === 'function') {
-                                window.updateConfigTableImages();
-                            }
-                            
-                            // Show the config table
-                            const configTable = document.getElementById('config-table');
-                            if (configTable) {
-                                configTable.style.display = 'block';
-                                console.log('Configuration table shown with updated component data');
-                            }
-                            
-                            // Also show the modal popup
-                            if (summaryModal) {
-                                summaryModal.style.display = 'block';
-                            }
-                        } else {
-                            // No components selected
-                            alert('Vui lòng chọn ít nhất một linh kiện trước khi xem chi tiết.');
-                            console.log('No components selected, not showing table');
+                        console.log('Calculate button clicked - showing detailed configuration modal');
+                        // Reset closed state
+                        window.userClosedConfigModal = false;
+                        // Populate and display the detailed configuration modal
+                        if (typeof window.showConfigDetailModal === 'function') {
+                            window.showConfigDetailModal();
+                        } else if (summaryModal) {
+                            summaryModal.style.display = 'block';
                         }
                     });
                 }
                 
                 // Add event handler for the show-config-details button
                 const showConfigDetailsButton = document.getElementById('show-config-details');
-                if (showConfigDetailsButton && summaryModal) {
+                if (showConfigDetailsButton) {
                     showConfigDetailsButton.addEventListener('click', function() {
-                        summaryModal.style.display = 'block';
+                        console.log('Show details button clicked - displaying detailed configuration modal');
+                        if (typeof window.showConfigDetailModal === 'function') {
+                            window.showConfigDetailModal();
+                        } else if (summaryModal) {
+                            summaryModal.style.display = 'block';
+                        }
                     });
                 }
                 
