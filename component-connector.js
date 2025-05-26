@@ -988,17 +988,17 @@ function ensureComponentTableVisible() {
         componentSelection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
     }
     
-    // Show the detail modal
-    const detailModal = document.getElementById('component-detail-modal');
-    if (detailModal) {
-        detailModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
-        
-        // Find modal dialog and set its style
-        const modalDialog = detailModal.querySelector('.modal-dialog');
-        if (modalDialog) {
-            modalDialog.style.cssText = 'margin: 30px auto !important; max-width: 800px !important; background: white !important; border-radius: 5px !important; overflow: hidden !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
-        }
-    }
+    // Don't automatically show the modal - this should be user-triggered
+    // const detailModal = document.getElementById('component-detail-modal');
+    // if (detailModal) {
+    //     detailModal.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important; overflow-y: auto !important;';
+    //     
+    //     // Find modal dialog and set its style
+    //     const modalDialog = detailModal.querySelector('.modal-dialog');
+    //     if (modalDialog) {
+    //         modalDialog.style.cssText = 'margin: 30px auto !important; max-width: 800px !important; background: white !important; border-radius: 5px !important; overflow: hidden !important; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important;';
+    //     }
+    // }
     
     // Run after a short delay to ensure icons are applied
     setTimeout(replaceImagesWithIcons, 100);
@@ -1043,8 +1043,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Run when the page is fully loaded
-    setTimeout(ensureComponentTableVisible, 1000);
+    // Don't automatically run on page load
+    // setTimeout(ensureComponentTableVisible, 1000);
 });
 
 // Hàm kiểm tra xem đã chọn đủ linh kiện cơ bản chưa

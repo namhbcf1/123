@@ -4117,14 +4117,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Kiểm tra xem có đủ điều kiện để hiển thị và người dùng chưa đóng bảng
                     window.hasRequiredSelections = checkRequiredSelections();
                     
-                    if (window.hasRequiredSelections && !window.userClosedConfigModal) {
-                        if (typeof window.showConfigDetailModal === 'function') {
-                            console.log(`Showing configuration table after ${id} change`);
-                            window.showConfigDetailModal();
-                        }
-                    } else {
-                        console.log(`Not showing table: hasRequiredSelections=${window.hasRequiredSelections}, userClosedModal=${window.userClosedConfigModal}`);
-                    }
+                    // Don't automatically show the modal - let the user click a button to show it
+                    // if (window.hasRequiredSelections && !window.userClosedConfigModal) {
+                    //     if (typeof window.showConfigDetailModal === 'function') {
+                    //         console.log(`Showing configuration table after ${id} change`);
+                    //         window.showConfigDetailModal();
+                    //     }
+                    // } else {
+                    //     console.log(`Not showing table: hasRequiredSelections=${window.hasRequiredSelections}, userClosedModal=${window.userClosedConfigModal}`);
+                    // }
                 }, 800);
             });
         }
